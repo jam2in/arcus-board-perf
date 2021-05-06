@@ -1,11 +1,12 @@
 package com.jam2in.arcus.board.service;
 
 import com.jam2in.arcus.board.model.Category;
+import com.jam2in.arcus.board.model.Pagination;
 import com.jam2in.arcus.board.model.Post;
+import com.jam2in.arcus.board.repository.BoardRepository;
 import com.jam2in.arcus.board.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -13,29 +14,52 @@ import java.util.List;
 public class PostService {
     @Autowired
     private PostRepository postRepository;
+    @Autowired
+    private BoardRepository boardRepository;
 
     public void insertPost(Post post) {
         postRepository.insert(post);
+        int bid = post.getBid();
+        boardRepository.increaseReqRecent(bid);
+        boardRepository.increaseReqToday(bid);
     }
 
     public void updatePost(Post post) {
         postRepository.update(post);
+        int bid = post.getBid();
+        boardRepository.increaseReqRecent(bid);
+        boardRepository.increaseReqToday(bid);
     }
 
-    public void deletePost(int id) {
-        postRepository.delete(id);
+    public void deletePost(int pid) {
+        int bid = postRepository.selectOne(pid).getBid();
+        postRepository.delete(pid);
+        boardRepository.increaseReqRecent(bid);
+        boardRepository.increaseReqToday(bid);
     }
 
-    public Post selectOnePost(int id) {
-        return postRepository.selectOne(id);
+    public Post detailPost(int pid) {
+        postRepository.increaseViews(pid);
+        Post post = postRepository.selectOne(pid);
+        boardRepository.increaseReqRecent(post.getBid());
+        boardRepository.increaseReqToday(post.getBid());
+        return post;
     }
 
-    public List<Post> selectAll(int bid, int startList, int pageSize) {
-        return postRepository.selectAll(bid, startList, pageSize);
+    public Post selectOnePost(int pid) {
+        return postRepository.selectOne(pid);
     }
 
-    public List<Post> selectCategory(int bid, int category, int startList, int pageSize) {
-        return postRepository.selectCategory(bid, category, startList, pageSize);
+    public List<Post> postList(int bid, Pagination pagination) {
+        boardRepository.increaseReqRecent(bid);
+        boardRepository.increaseReqToday(bid);
+        return postRepository.selectAll(bid, pagination.getStartList()-1, pagination.getPageSize());
+    }
+
+    public List<Post> postCategoryList(int bid, int category, Pagination pagination) {
+        boardRepository.increaseReqRecent(bid);
+        boardRepository.increaseReqToday(bid);
+        return postRepository.selectCategory(bid, category, pagination.getStartList()-1, pagination.getPageSize());
     }
 
     public List<Post> selectLatestNotice(int bid) {
@@ -50,10 +74,6 @@ public class PostService {
         return postRepository.countPostCategory(bid, category);
     }
 
-    public void increaseViews(int id) {
-        postRepository.increaseViews(id);
-    }
-
     public void likePost(int id) {
         postRepository.likePost(id);
     }
@@ -62,9 +82,9 @@ public class PostService {
         return postRepository.postCategoryAll();
     }
 
-    public Post selectLatestRandom(int bid) {
+    public int selectLatestRandom(int bid) {
         List<Post> postList = postRepository.selectAll(bid, 0, 100);
         int index = (int)(Math.random() * 100);
-        return postList.get(index);
+        return postList.get(index).getPid();
     }
 }

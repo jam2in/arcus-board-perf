@@ -29,12 +29,16 @@ public class BoardController {
     @RequestMapping(path = "/")
     public String home(@RequestParam(defaultValue = "0") int likesPeriod, @RequestParam(defaultValue = "0") int viewsPeriod, @RequestParam(defaultValue = "0") int boardPeriod, Model model) {
         List<Post> noticeList = postService.selectLatestNotice(1);
+        List<Board> boardList = boardService.selectAllBoard();
+        List<Category> boardCategory = boardService.boardCategoryAll();
 
         List<Post> bestLikes = leaderBoardService.bestLikesAll(likesPeriod);
         List<Post> bestViews = leaderBoardService.bestViewsAll(viewsPeriod);
         List<Board> bestBoard = boardService.bestBoard(boardPeriod);
 
         model.addAttribute("noticeList", noticeList);
+        model.addAttribute("boardList", boardList);
+        model.addAttribute("boardCategory", boardCategory);
 
         model.addAttribute("likesPeriod", likesPeriod);
         model.addAttribute("viewsPeriod", viewsPeriod);
@@ -44,28 +48,23 @@ public class BoardController {
         model.addAttribute("bestViews", bestViews);
         model.addAttribute("bestBoard", bestBoard);
 
-        model.addAttribute("boardList", boardService.selectAllBoard());
-        model.addAttribute("boardCategory", boardService.boardCategoryAll());
-
         return "home";
     }
 
     @RequestMapping(path = "/board", params = {"bid"})
     public String postList(@RequestParam("bid") int bid, @RequestParam(defaultValue = "1") int groupIndex, @RequestParam(defaultValue = "1") int pageIndex, @RequestParam(defaultValue = "0") int likesPeriod, @RequestParam(defaultValue = "0") int viewsPeriod, Model model) {
         Board board = boardService.selectOneBoard(bid);
-        boardService.increaseReq(bid);
 
         Pagination pagination = new Pagination();
         pagination.setGroupSize(10);
         pagination.setPageSize(20);
         pagination.pageInfo(groupIndex, pageIndex, postService.countPost(bid));
 
-        List<Post> postList = postService.selectAll(bid, pagination.getStartList()-1, pagination.getPageSize());
+        List<Post> postList = postService.postList(bid, pagination);
         List<Post> noticeList = postService.selectLatestNotice(bid);
         List<Board> boardList = boardService.selectAllBoard();
         List<Category> boardCategory = boardService.boardCategoryAll();
         List<Category> postCategory = postService.postCategoryAll();
-
 
         model.addAttribute("board", board);
         model.addAttribute("pagination", pagination);
@@ -92,16 +91,15 @@ public class BoardController {
     }
 
     @RequestMapping(path = "/board", params = {"bid", "category"})
-    public String postList(@RequestParam("bid") int bid, @RequestParam("category") int category, @RequestParam(defaultValue = "1") int groupIndex, @RequestParam(defaultValue = "1") int pageIndex, @RequestParam(defaultValue = "0") int likesPeriod, @RequestParam(defaultValue = "0") int viewsPeriod, Model model) {
+    public String postCategoryList(@RequestParam("bid") int bid, @RequestParam("category") int category, @RequestParam(defaultValue = "1") int groupIndex, @RequestParam(defaultValue = "1") int pageIndex, @RequestParam(defaultValue = "0") int likesPeriod, @RequestParam(defaultValue = "0") int viewsPeriod, Model model) {
         Board board = boardService.selectOneBoard(bid);
-        boardService.increaseReq(bid);
 
         Pagination pagination = new Pagination();
         pagination.setGroupSize(10);
         pagination.setPageSize(20);
         pagination.pageInfo(groupIndex, pageIndex, postService.countPostCategory(bid, category));
 
-        List<Post> postList = postService.selectCategory(bid, category, pagination.getStartList()-1, pagination.getPageSize());
+        List<Post> postList = postService.postCategoryList(bid, category, pagination);
         List<Post> noticeList = postService.selectLatestNotice(bid);
         List<Board> boardList = boardService.selectAllBoard();
         List<Category> boardCategory = boardService.boardCategoryAll();

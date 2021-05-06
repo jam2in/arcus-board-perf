@@ -49,12 +49,8 @@ public class BoardService {
     }
 
     @Scheduled(cron = "0 0 0 * * *")
-    public void resetReqRecent() {
+    public void resetReq() {
         boardRepository.resetReqRecent();
-    }
-
-    @Scheduled(cron = "0 0 0 * * *")
-    public void resetReqToday() {
         boardRepository.resetReqToday();
     }
 
