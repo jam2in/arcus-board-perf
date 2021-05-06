@@ -1,0 +1,187 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>arcus board notice</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" >
+
+</head>
+
+<body>
+<th:block th:replace="/common.html :: commonFragment"></th:block>
+
+<div>
+    <h2 class="ml-3" th:text="${board.name}"></h2>
+</div>
+
+<div class="row mt-3">
+
+    <div class="col ml-2">
+        <div class="container p-3 bg-success">
+
+            <div th:if="${category == null}">
+                <div class="row">
+                    <div class="col">
+                        <h4 class="display-8 ml-2 mt-2 mb-4 text-white">추천수 많은 글</h4>
+                    </div>
+                    <div class="col-auto">
+                        <a class="mr-1 mt-2 mb-4 text-white" th:href="@{'/board?bid='+${board.bid}+'&groupIndex='+${pagination.groupIndex}+'&pageIndex='+${pagination.pageIndex}+'&likesPeriod=0&viewsPeriod='+${viewsPeriod}}">오늘</a>
+                    </div>
+                    <div class="col-auto">
+                        <a class="mr-1 mt-2 mb-4 text-white" th:href="@{'/board?bid='+${board.bid}+'&groupIndex='+${pagination.groupIndex}+'&pageIndex='+${pagination.pageIndex}+'&likesPeriod=1&viewsPeriod='+${viewsPeriod}}">이번달</a>
+                    </div>
+                    <div class="col-auto">
+                        <a class="mr-1 mt-2 mb-4 text-white" th:href="@{'/board?bid='+${board.bid}+'&groupIndex='+${pagination.groupIndex}+'&pageIndex='+${pagination.pageIndex}+'&likesPeriod=2&viewsPeriod='+${viewsPeriod}}">전체</a>
+                    </div>
+                </div>
+            </div>
+            <div th:unless="${category == null}">
+                <div class="row">
+                    <div class="col">
+                        <h4 class="display-8 ml-2 mt-2 mb-4 text-white">추천수 많은 글</h4>
+                    </div>
+                    <div class="col-auto">
+                        <a class="mr-1 mt-2 mb-4 text-white" th:href="@{'/board?bid='+${board.bid}+'&category='+${category}+'&groupIndex='+${pagination.groupIndex}+'&pageIndex='+${pagination.pageIndex}+'&likesPeriod=0&viewsPeriod='+${viewsPeriod}}">오늘</a>
+                    </div>
+                    <div class="col-auto">
+                        <a class="mr-1 mt-2 mb-4 text-white" th:href="@{'/board?bid='+${board.bid}+'&category='+${category}+'&groupIndex='+${pagination.groupIndex}+'&pageIndex='+${pagination.pageIndex}+'&likesPeriod=1&viewsPeriod='+${viewsPeriod}}">이번달</a>
+                    </div>
+                    <div class="col-auto">
+                        <a class="mr-1 mt-2 mb-4 text-white" th:href="@{'/board?bid='+${board.bid}+'&category='+${category}+'&groupIndex='+${pagination.groupIndex}+'&pageIndex='+${pagination.pageIndex}+'&likesPeriod=2&viewsPeriod='+${viewsPeriod}}">전체</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <tr th:each="post, i: ${bestLikes}">
+                    <span class="ml-4 mt-2 mb-2 text-white" th:text="${i.index+1}+'. '"></span>
+                    <td><a class="ml-2 mt-2 mb-2 text-white" th:text="${post.title}" th:href="@{'/post/detail?pid='+${post.pid}}"></a><td>
+                    <div class="w-100"></div>
+                </tr>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="col mr-2">
+        <div class="container p-3 bg-success">
+
+            <div th:if="${category == null}">
+                <div class="row">
+                    <div class="col">
+                        <h4 class="display-8 ml-2 mt-2 mb-4 text-white">조회수 많은 글</h4>
+                    </div>
+                    <div class="col-auto">
+                        <a class="mr-1 mt-2 mb-4 text-white" th:href="@{'/board?bid='+${board.bid}+'&groupIndex='+${pagination.groupIndex}+'&pageIndex='+${pagination.pageIndex}+'&likesPeriod='+${likesPeriod}+'&viewsPeriod=0'}">오늘</a>
+                    </div>
+                    <div class="col-auto">
+                        <a class="mr-1 mt-2 mb-4 text-white" th:href="@{'/board?bid='+${board.bid}+'&groupIndex='+${pagination.groupIndex}+'&pageIndex='+${pagination.pageIndex}+'&likesPeriod='+${likesPeriod}+'&viewsPeriod=1'}">이번달</a>
+                    </div>
+                    <div class="col-auto">
+                        <a class="mr-1 mt-2 mb-4 text-white" th:href="@{'/board?bid='+${board.bid}+'&groupIndex='+${pagination.groupIndex}+'&pageIndex='+${pagination.pageIndex}+'&likesPeriod='+${likesPeriod}+'&viewsPeriod=2'}">전체</a>
+                    </div>
+                </div>
+            </div>
+            <div th:unless="${category == null}">
+                <div class="row">
+                    <div class="col">
+                        <h4 class="display-8 ml-2 mt-2 mb-4 text-white">조회수 많은 글</h4>
+                    </div>
+                    <div class="col-auto">
+                        <a class="mr-1 mt-2 mb-4 text-white" th:href="@{'/board?bid='+${board.bid}+'&category='+${category}+'&groupIndex='+${pagination.groupIndex}+'&pageIndex='+${pagination.pageIndex}+'&likesPeriod='+${likesPeriod}+'&viewsPeriod=0'}">오늘</a>
+                    </div>
+                    <div class="col-auto">
+                        <a class="mr-1 mt-2 mb-4 text-white" th:href="@{'/board?bid='+${board.bid}+'&category='+${category}+'&groupIndex='+${pagination.groupIndex}+'&pageIndex='+${pagination.pageIndex}+'&likesPeriod='+${likesPeriod}+'&viewsPeriod=1'}">이번달</a>
+                    </div>
+                    <div class="col-auto">
+                        <a class="mr-1 mt-2 mb-4 text-white" th:href="@{'/board?bid='+${board.bid}+'&category='+${category}+'&groupIndex='+${pagination.groupIndex}+'&pageIndex='+${pagination.pageIndex}+'&likesPeriod='+${likesPeriod}+'&viewsPeriod=2'}">전체</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <tr th:each="post, i: ${bestViews}">
+                    <span class="ml-4 mt-2 mb-2 text-white" th:text="${i.index+1}+'. '"></span>
+                    <td><a class="ml-2 mt-2 mb-2 text-white" th:text="${post.title}" th:href="@{'/post/detail?pid='+${post.pid}}"></a><td>
+                    <div class="w-100"></div>
+                </tr>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+<br/>
+
+<div class="ml-2 mr-2">
+    <table class="table">
+        <tr>
+            <th>추천</th>
+            <th>분류</th>
+            <th>제목</th>
+            <th></th>
+            <th>작성자</th>
+            <th>조회수</th>
+            <th>작성일</th>
+            <th></th>
+        </tr>
+        <tr th:each="post: ${postList}">
+            <td th:text="${post.likes}"><td>
+            <span th:if="${post.category == 1}">공지</span>
+            <span th:if="${post.category == 2}">질문</span>
+            <span th:if="${post.category == 3}">잡담</span>
+            <td><a class="text-dark" th:text="${post.title}+'  ['+${post.cmtCnt}+']'" th:href="@{'/post/detail?pid='+${post.pid}}"></a><td>
+            <td th:text="${post.userName}"></td>
+            <td th:text="${post.views}"></td>
+            <td th:text="${#dates.format(post.createdDate, 'yyyy-MM-dd')}"></td>
+        </tr>
+    </table>
+</div>
+
+<div class="ml-2" id="pagination_add">
+    <div class="row">
+        <div class="col">
+            <ul class="pagination">
+                <li th:class="(${pagination.prev == false}) ? 'page-item disabled'">
+                    <form action="/board" method="get">
+                        <input type="hidden" name="bid" th:value="${board.bid}"/>
+                        <div th:if="${category!=null}">
+                            <input type="hidden" name="category" th:value="${category}"/>
+                        </div>
+                        <input type="hidden" name="groupIndex" th:value="${pagination.groupIndex}-1"/>
+                        <input type="hidden" name="pageIndex" th:value="(${pagination.groupIndex}-2)*${pagination.groupSize}+1"/>
+                        <button type="submit" class="page-link">이전</button>
+                    </form>
+                </li>
+                <div th:each="i : ${#numbers.sequence(pagination.startRow, pagination.endRow)}">
+                    <form action="/board" method="get">
+                        <input type="hidden" name="bid" th:value="${board.bid}"/>
+                        <div th:if="${category!=null}">
+                            <input type="hidden" name="category" th:value="${category}"/>
+                        </div>
+                        <li th:class="(${pagination.pageIndex} == ${i}) ? 'page-item active'">
+                            <input type="hidden" name="groupIndex" th:value="${pagination.groupIndex}"/>
+                            <input type="hidden" name="pageIndex" th:value="${i}"/>
+                            <button type="submit" class="page-link" th:text="${i}"></button>
+                        </li>
+                    </form>
+                </div>
+                <li th:class="(${pagination.next} == false) ? 'page-item disabled'">
+                    <form>
+                        <input type="hidden" name="bid" th:value="${board.bid}"/>
+                        <div th:if="${category!=null}">
+                            <input type="hidden" name="category" th:value="${category}"/>
+                        </div>
+                        <input type="hidden" name="groupIndex" th:value="${pagination.groupIndex}+1"/>
+                        <input type="hidden" name="pageIndex" th:value="${pagination.groupIndex} * ${pagination.groupSize} + 1"/>
+                        <button type="submit" class="page-link">다음</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<a class="btn btn-primary float-right mr-5" th:href="@{'/post/write?bid='+${board.bid}}">글쓰기</a>
+
+</body>

@@ -1,0 +1,29 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="commonFragment">
+
+<header class="bg-dark py-5 mb-4">
+    <div class="container h-100">
+        <div class="row h-100 align-items-center">
+                <h1 class="display-3 mt-5 mb-5 text-white" th:onclick="location.href='/'">ARCUS BOARD</h1>
+        </div>
+    </div>
+    <div class="row">
+        <th:block th:each="category : ${boardCategory}">
+            <div th:if="${category.id != 1}">
+                <div class="col">
+                    <h4 class="display-8 ml-5 mt-5 mb-4 text-white" th:text="${category.name}"></h4>
+                    <div class="btn-group-vertical">
+                        <th:block th:each="board : ${boardList}">
+                            <a class="text-white ml-5 mb-3" th:if="${board.category == category.id}" th:href="@{'/board?bid='+${board.bid}}" th:text="${board.name}"></a>
+                        </th:block>
+                    </div>
+                </div>
+            </div>
+        </th:block>
+    </div>
+</header>
+
+
+</th:block>
+</html>

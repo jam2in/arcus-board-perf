@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jam2in.arcus.board.repository.PostRepository">
+    <insert id="insert">
+        INSERT INTO post(uid, bid, category, title, content)
+        VALUES (#{uid}, #{bid}, #{category}, #{title}, #{content})
+    </insert>
+
+    <update id="update">
+        UPDATE post
+        SET category = #{category}, title = #{title}, content = #{content}
+        WHERE pid = #{pid}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM post
+        WHERE pid = #{pid}
+    </delete>
+
+    <select id="selectOne" resultType="com.jam2in.arcus.board.model.Post">
+        SELECT p.*, u.name userName, c.name categoryName
+        FROM post p INNER JOIN user u ON p.uid = u.uid
+        INNER JOIN category_post c ON p.category = c.id
+        WHERE p.pid = #{pid}
+    </select>
+
+    <select id="selectAll" resultType="com.jam2in.arcus.board.model.Post">
+        SELECT p.*, u.name userName, c.name categoryName
+        FROM (
+        SELECT * FROM post
+        USE INDEX(idx_post)
+        WHERE bid = #{bid}
+        ORDER BY pid DESC
+        LIMIT #{startList}, #{pageSize}
+        ) p INNER JOIN user u ON p.uid = u.uid
+        INNER JOIN category_post c ON p.category = c.id
+        ORDER BY pid DESC
+    </select>
+
+    <select id="selectCategory" resultType="com.jam2in.arcus.board.model.Post">
+        SELECT p.*, u.name userName, c.name categoryName
+        FROM (
+        SELECT * FROM post
+        WHERE bid = #{bid} and category = #{category}
+        ORDER BY pid DESC
+        LIMIT #{startList}, #{pageSize}
+        ) p INNER JOIN user u ON p.uid = u.uid
+        INNER JOIN category_post c ON p.category = c.id
+        ORDER BY pid DESC
+    </select>
+    
+    <select id="bestLikesAll" resultType="java.lang.Integer">
+        SELECT pid FROM post
+        ORDER BY likes DESC LIMIT 10
+    </select>
+
+    <select id="bestLikesMonth" resultType="java.lang.Integer">
+        SELECT pid FROM post
+        WHERE DATE(created_date) >= DATE_SUB(current_date(), INTERVAL 1 MONTH)
+        ORDER BY likes DESC LIMIT 10
+    </select>
+
+    <select id="bestLikesToday" resultType="java.lang.Integer">
+        SELECT pid FROM post
+        WHERE DATE(created_date) >= DATE_SUB(current_date(), INTERVAL 1 DAY)
+        ORDER BY likes DESC LIMIT 10
+    </select>
+
+    <select id="bestViewsAll" resultType="java.lang.Integer">
+        SELECT pid FROM post
+        ORDER BY views DESC LIMIT 10
+    </select>
+
+    <select id="bestViewsMonth" resultType="java.lang.Integer">
+        SELECT pid FROM post
+        WHERE DATE(created_date) >= DATE_SUB(current_date(), INTERVAL 1 MONTH)
+        ORDER BY views DESC LIMIT 10
+    </select>
+
+    <select id="bestViewsToday" resultType="java.lang.Integer">
+        SELECT pid FROM post
+        WHERE DATE(created_date) >= DATE_SUB(current_date(), INTERVAL 1 DAY)
+        ORDER BY views DESC LIMIT 10
+    </select>
+
+    <select id="bestLikesAllBoard" resultType="java.lang.Integer">
+        SELECT pid FROM post
+        WHERE bid = ${bid}
+        ORDER BY likes DESC LIMIT 10
+    </select>
+
+    <select id="bestLikesMonthBoard" resultType="java.lang.Integer">
+        SELECT pid FROM post
+        WHERE bid = ${bid} and DATE(created_date) >= DATE_SUB(current_date(), INTERVAL 1 MONTH)
+        ORDER BY likes DESC LIMIT 10
+    </select>
+
+    <select id="bestLikesTodayBoard" resultType="java.lang.Integer">
+        SELECT pid FROM post
+        WHERE bid = ${bid} and DATE(created_date) >= DATE_SUB(current_date(), INTERVAL 1 DAY)
+        ORDER BY likes DESC LIMIT 10
+    </select>
+
+    <select id="bestViewsAllBoard" resultType="java.lang.Integer">
+        SELECT pid FROM post
+        WHERE bid = ${bid}
+        ORDER BY views DESC LIMIT 10
+    </select>
+
+    <select id="bestViewsMonthBoard" resultType="java.lang.Integer">
+        SELECT pid FROM post
+        WHERE bid = ${bid} and DATE(created_date) >= DATE_SUB(current_date(), INTERVAL 1 MONTH)
+        ORDER BY views DESC LIMIT 10
+    </select>
+
+    <select id="bestViewsTodayBoard" resultType="java.lang.Integer">
+        SELECT pid FROM post
+        WHERE bid = ${bid} and DATE(created_date) >= DATE_SUB(current_date(), INTERVAL 1 DAY)
+        ORDER BY views DESC LIMIT 10
+    </select>
+
+    <select id="countPost" resultType="java.lang.Integer">
+        SELECT COUNT(*) as listCnt
+        FROM post
+        WHERE post.bid = #{bid}
+    </select>
+
+    <select id="countPostCategory" resultType="java.lang.Integer">
+        SELECT COUNT(*) as listCnt
+        FROM post
+        WHERE post.bid = #{bid} and post.category = #{category}
+    </select>
+
+    <update id="increaseCmt">
+        UPDATE post
+        SET cmtCnt = cmtCnt + 1
+        WHERE pid = #{pid}
+    </update>
+
+    <update id="decreaseCmt">
+        UPDATE post
+        SET cmtCnt = cmtCnt - 1
+        WHERE pid = #{pid}
+    </update>
+
+    <update id="increaseViews">
+        UPDATE post
+        SET views = views + 1
+        WHERE pid = #{pid}
+    </update>
+
+    <update id="likePost">
+        UPDATE post
+        SET likes = likes + 1
+        WHERE pid = #{pid}
+    </update>
+
+    <select id="postCategoryAll" resultType="com.jam2in.arcus.board.model.Category">
+        SELECT * FROM category_post
+    </select>
+
+</mapper>

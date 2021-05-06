@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jam2in.arcus.board.repository.LeaderBoardRepository">
+    <delete id="resetBestLikesAll">
+        truncate best_likes_all;
+    </delete>
+
+    <delete id="resetBestLikesBoard">
+        truncate best_likes_board;
+    </delete>
+
+    <delete id="resetBestViewsAll">
+        truncate best_views_all;
+    </delete>
+
+    <delete id="resetBestViewsBoard">
+        truncate best_views_board;
+    </delete>
+
+    <insert id="insertBestLikesAll" parameterType="java.util.List">
+        INSERT INTO best_likes_all(period, rank, pid)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.period}, #{item.rank}, #{item.pid})
+        </foreach>
+    </insert>
+
+    <insert id="insertBestLikesBoard" parameterType="java.util.List">
+        INSERT INTO best_likes_board(bid, period, rank, pid)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.bid}, #{item.period}, #{item.rank}, #{item.pid})
+        </foreach>
+    </insert>
+
+    <insert id="insertBestViewsAll" parameterType="java.util.List">
+        INSERT INTO best_views_all(period, rank, pid)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.period}, #{item.rank}, #{item.pid})
+        </foreach>
+    </insert>
+
+    <insert id="insertBestViewsBoard" parameterType="java.util.List">
+        INSERT INTO best_views_board(bid, period, rank, pid)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.bid}, #{item.period}, #{item.rank}, #{item.pid})
+        </foreach>
+    </insert>
+
+    <select id="bestLikesAll" resultType="com.jam2in.arcus.board.model.Post">
+        SELECT p.*
+        FROM (
+        SELECT * FROM best_likes_all
+        WHERE period = #{period}
+        ) b INNER JOIN post p
+        ON b.pid = p.pid
+        ORDER BY rank ASC
+    </select>
+
+    <select id="bestLikesBoard" resultType="com.jam2in.arcus.board.model.Post">
+        SELECT p.*
+        FROM (
+        SELECT * FROM best_likes_board
+        WHERE bid = #{bid} and period = #{period}
+        ) b INNER JOIN post p
+        ON b.pid = p.pid
+        ORDER BY rank ASC
+    </select>
+
+    <select id="bestViewsAll" resultType="com.jam2in.arcus.board.model.Post">
+        SELECT p.*
+        FROM (
+        SELECT * FROM best_views_all
+        WHERE period = #{period}
+        ) b INNER JOIN post p
+        ON b.pid = p.pid
+        ORDER BY rank ASC
+    </select>
+
+    <select id="bestViewsBoard" resultType="com.jam2in.arcus.board.model.Post">
+        SELECT p.*
+        FROM (
+        SELECT * FROM best_views_board
+        WHERE bid = #{bid} and period = #{period}
+        ) b INNER JOIN post p
+        ON b.pid = p.pid
+        ORDER BY rank ASC
+    </select>
+</mapper>

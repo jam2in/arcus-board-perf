@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jam2in.arcus.board.repository.BoardRepository">
+    <insert id="insert">
+        INSERT INTO board(name, category)
+        VALUES (#{name}, #{category})
+    </insert>
+
+    <update id="update">
+        UPDATE board
+        SET name = #{name}
+        WHERE bid = #{bid}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM board
+        WHERE bid = #{bid}
+    </delete>
+
+    <select id="selectOne" resultType="com.jam2in.arcus.board.model.Board">
+        SELECT * FROM board
+        WHERE bid = #{bid}
+    </select>
+
+    <select id="selectAll" resultType="com.jam2in.arcus.board.model.Board">
+        SELECT * FROM board
+    </select>
+
+    <select id="bestBoardRecent" resultType="com.jam2in.arcus.board.model.Board">
+        SELECT * FROM (
+        SELECT bid, SUM(request) as req_recent
+        FROM best_board_request
+        WHERE time BETWEEN DATE_SUB(CURTIME(), INTERVAL 3 HOUR) and CURTIME()
+        GROUP BY bid
+        ) r INNER JOIN board b
+        ON r.bid = b.bid
+        ORDER BY req_recent DESC LIMIT 3
+    </select>
+
+    <select id="bestBoardToday" resultType="com.jam2in.arcus.board.model.Board">
+        SELECT * FROM board
+        WHERE bid != 1
+        ORDER BY req_today DESC LIMIT 3
+    </select>
+
+    <update id="increaseReqRecent">
+        UPDATE best_board_request
+        SET request = request + 1
+        WHERE bid = #{bid} and TIMEDIFF(CURTIME(), best_board_request.time)
+        BETWEEN "00:00:00" and "00:09:59"
+    </update>
+
+    <update id="increaseReqToday">
+        UPDATE board
+        SET req_today = req_today + 1
+        WHERE bid = #{bid}
+    </update>
+
+    <update id="resetReqRecent">
+        UPDATE best_board_request
+        SET request = DEFAULT
+    </update>
+
+    <update id="resetReqToday">
+        UPDATE board
+        SET req_today = DEFAULT
+    </update>
+
+    <select id="boardCategoryAll" resultType="com.jam2in.arcus.board.model.Category">
+        SELECT * FROM category_board
+    </select>
+
+</mapper>

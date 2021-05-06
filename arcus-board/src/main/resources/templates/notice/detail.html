@@ -1,0 +1,123 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>post detail</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" >
+<!--    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="//code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="/js/comment.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>-->
+</head>
+
+<body>
+<th:block th:replace="/common.html :: commonFragment"></th:block>
+
+<div>
+    <h2 class="ml-3" th:text="${board.name}"></h2>
+</div>
+<br/>
+
+<div class="col-md-12">
+    <input type="hidden" class="form-control" th:field="*{post.bid}" id="bid">
+
+    <div class="row ml-1">
+        <div class="col-md-2">
+            <label for="userName" class="mt-3">작성자</label>
+            <input type="text" class="form-control" th:value="${post.userName}" id="userName" disabled >
+        </div>
+        <div class="col mt-3">
+            <td>생성: </td><td th:text="${#dates.format(post.createdDate, 'yyyy-MM-dd HH:mm')}"></td>
+            <div class="w-100 mt-2"></div>
+            <td>수정: </td><td th:text="${#dates.format(post.updatedDate, 'yyyy-MM-dd HH:mm')}"></td>
+            <div class="w-100 mt-2"></div>
+            <td>조회수: </td><td th:text="${post.views}"></td>
+            <div class="w-100 mt-2"></div>
+        </div>
+    </div>
+
+    <div cLass="col-md-12">
+        <label for="title" class="mt-3">제목</label>
+        <input type="text" class="form-control" th:value="${post.title}" id="title" disabled >
+
+        <label for="content" class="mt-3">내용</label>
+        <input type="text" class="form-control" style="height:300px" th:value="${post.content}" id="content" disabled >
+        <br/>
+        <a role="button" class="btn btn-dark float-right mr-1" th:href="@{'/board?bid=1'}">목록</a>
+        <a role="button" class="btn btn-success float-right mr-3" th:href="@{'/post/edit?pid='+${post.pid}}">수정</a>
+
+    </div>
+
+    <a role="button" class="btn btn-info likeBtn ml-3" id="btnLike" th:href="@{'/post/like?pid='+${post.pid}}" th:text="'추천  '+${post.likes}"></a>
+
+    <th:block th:replace="/comment.html :: cmtFragment"></th:block>
+
+ <!--   <button class="btn btn-info ml-3" id="btnLike">
+        <span id="likes" th:text="'추천    '+${post.likes}"></span>
+    </button>
+
+    <br/>
+
+    <div class="container-fluid bg-light mt-2 p-3">
+        <span><strong>Comment </strong></span><span th:text="${post.cmtCnt}"></span>
+        <hr/>
+
+        <div id="commentList"></div>
+
+        <form role="form" th:object=${comment} th:action="@{/comment/insert}" method="post" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-md-3">
+                    <input type="hidden" class="form-control" th:field="*{pid}" id="pid" name="pid" required="required">
+                    <label for="uid" class="mt-3">작성자</label>
+                    <input type="text" class="form-control" th:field="*{uid}" id="uid" placeholder="uid를 입력하세요." autocomplete="off" required="required">
+                    <div class="w-100"></div>
+                </div>
+                <div class="col-md-10">
+                    <label for="content" class="mt-3">내용</label>
+                    <input type="text" class="form-control" style="height:100px" th:field="*{content}" id="content" placeholder="내용을 입력하세요." autocomplete="off" required="required">
+                </div>
+                <div class="col">
+                    <br/>
+                    <br/>
+                    <br/>
+                    <input type="submit" value="추가" class="btn btn-primary float-right mr-3">
+                </div>
+            </div>
+        </form>
+        <br/>
+    </div>
+
+    <div id="commentPaging"></div>-->
+
+
+</div>
+
+<!--<script th:inline="javascript">
+
+    $('#btnLike').click(function() {
+        $('#likes').text();
+        var pid = [[${post.pid}]];
+        $.ajax({
+            url : "/post/like",
+            type : 'POST',
+            dataType : 'json',
+            data : JSON.stringify({'pid': pid}),
+            contentType : 'application/json; charset=utf-8',
+            success : function(data) {
+                $('#likes').text('추천    '+data);
+            }
+        });
+    })
+
+    $(document).ready(function() {
+        var pid = [[${post.pid}]];
+        showCmtList(pid, 1, 1);
+    })
+
+</script>-->
+
+
+</body>
+
+</html>

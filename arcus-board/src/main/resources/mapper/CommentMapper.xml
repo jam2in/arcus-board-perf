@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jam2in.arcus.board.repository.CommentRepository">
+
+    <insert id="insert">
+        INSERT INTO comment(uid, pid, content)
+        VALUES (#{uid}, #{pid}, #{content})
+    </insert>
+
+    <update id="update">
+        UPDATE comment
+        SET content = #{content}
+        WHERE cid = #{cid}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM comment
+        WHERE cid = #{cid}
+    </delete>
+
+    <select id="selectOne" resultType="com.jam2in.arcus.board.model.Comment">
+        SELECT c.*, u.name userName
+        FROM comment c INNER JOIN user u
+        ON c.uid = u.uid
+        WHERE c.cid = #{cid}
+    </select>
+
+    <select id="selectAll" resultType="com.jam2in.arcus.board.model.Comment">
+        SELECT c.*, u.name userName
+        FROM (
+        SELECT * FROM comment
+        WHERE pid = #{pid}
+        ORDER BY cid ASC
+        LIMIT #{startList}, #{pageSize}
+        ) c INNER JOIN user u
+        ON c.uid = u.uid
+        ORDER BY cid ASC
+    </select>
+
+
+</mapper>

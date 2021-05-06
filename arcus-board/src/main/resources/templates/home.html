@@ -1,0 +1,115 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>arcus board home</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" >
+
+</head>
+
+<body>
+<th:block th:replace="/common.html :: commonFragment"></th:block>
+<div class="row">
+    <div class="col ml-4">
+        <div class="container p-3 bg-secondary">
+            <h4 class="display-8 ml-2 mt-2 mb-4 text-white" th:onclick="location.href='/board?bid=1'">전체 공지사항</h4>
+
+            <div class="row">
+                <tr th:each="notice: ${noticeList}">
+                    <span class="ml-4 mt-2 mb-2 text-white" >- </span>
+                    <td><a class="ml-2 mt-2 mb-2 text-white" th:text="${notice.title}" th:href="@{'/post/detail?pid='+${notice.pid}}"></a><td>
+                    <div class="w-100"></div>
+                </tr>
+
+            </div>
+
+        </div>
+    </div>
+
+
+    <div class="col mr-4">
+        <div class="container p-3 bg-info">
+            <div class="row">
+                <div class="col">
+                    <h4 class="display-8 ml-2 mt-2 mb-4 text-white">실시간 인기 게시판</h4>
+                </div>
+                <div class="col-auto">
+                    <a class="mr-1 mt-2 mb-4 text-white" th:href="@{'/?likesPeriod='+${likesPeriod}+'&viewsPeriod='+${viewsPeriod}+'&boardPeriod=0'}">최근</a>
+                </div>
+                <div class="col-auto">
+                    <a class="mr-2 mt-2 mb-4 text-white" th:href="@{'/?likesPeriod='+${likesPeriod}+'&viewsPeriod='+${viewsPeriod}+'&boardPeriod=1'}">오늘</a>
+                </div>
+            </div>
+
+            <div class="row">
+                <tr th:each="board, i: ${bestBoard}">
+                    <span class="ml-4 mt-2 mb-2 text-white" th:text="${i.index+1}+'. '" th:href="@{'/board?bid='+${board.bid}}"></span>
+                    <td><a class="ml-2 mt-2 mb-2 text-white" th:text="${board.name}" th:href="@{'/board?bid='+${board.bid}}"></a><td>
+                    <div class="w-100"></div>
+                </tr>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="row mt-4">
+
+    <div class="col ml-4">
+        <div class="container p-3 bg-success">
+            <div class="row">
+                <div class="col">
+                    <h4 class="display-8 ml-2 mt-2 mb-4 text-white">추천수 많은 글</h4>
+                </div>
+                <div class="col-auto">
+                    <a class="mr-1 mt-2 mb-4 text-white" th:href="@{'/?likesPeriod=0&viewsPeriod='+${viewsPeriod}+'&boardPeriod='+${boardPeriod}}">오늘</a>
+                </div>
+                <div class="col-auto">
+                    <a class="mr-1 mt-2 mb-4 text-white" th:href="@{'/?likesPeriod=1&viewsPeriod='+${viewsPeriod}+'&boardPeriod='+${boardPeriod}}">이번달</a>
+                </div>
+                <div class="col-auto">
+                    <a class="mr-2 mt-2 mb-4 text-white" th:href="@{'/?likesPeriod=2&viewsPeriod='+${viewsPeriod}+'&boardPeriod='+${boardPeriod}}">전체</a>
+                </div>
+            </div>
+
+            <div class="row">
+                <tr th:each="post, i: ${bestLikes}">
+                    <span class="ml-4 mt-2 mb-2 text-white" th:text="${i.index+1}+'. '"></span>
+                    <td><a class="ml-2 mt-2 mb-2 text-white" th:text="${post.title}" th:href="@{'/post/detail?pid='+${post.pid}}"></a><td>
+                    <div class="w-100"></div>
+                </tr>
+            </div>
+        </div>
+    </div>
+
+    <div class="col mr-4">
+        <div class="container p-3 bg-success">
+            <div class="row">
+                <div class="col">
+                    <h4 class="display-8 ml-2 mt-2 mb-4 text-white">조회수 많은 글</h4>
+                </div>
+                <div class="col-auto">
+                    <a class="mr-1 mt-2 mb-4 text-white" th:href="@{'/?likesPeriod='+${likesPeriod}+'&viewsPeriod=0&boardPeriod='+${boardPeriod}}">오늘</a>
+                </div>
+                <div class="col-auto">
+                    <a class="mr-1 mt-2 mb-4 text-white" th:href="@{'/?likesPeriod='+${likesPeriod}+'&viewsPeriod=1&boardPeriod='+${boardPeriod}}">이번달</a>
+                </div>
+                <div class="col-auto">
+                    <a class="mr-2 mt-2 mb-4 text-white" th:href="@{'/?likesPeriod='+${likesPeriod}+'&viewsPeriod=2&boardPeriod='+${boardPeriod}}">전체</a>
+                </div>
+            </div>
+
+            <div class="row">
+                <tr th:each="post, i: ${bestViews}">
+                    <span class="ml-4 mt-2 mb-2 text-white" th:text="${i.index+1}+'. '"></span>
+                    <td><a class="ml-2 mt-2 mb-2 text-white" th:text="${post.title}" th:href="@{'/post/detail?pid='+${post.pid}}"></a><td>
+                    <div class="w-100"></div>
+                </tr>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
