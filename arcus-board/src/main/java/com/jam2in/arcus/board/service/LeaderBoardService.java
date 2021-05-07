@@ -46,10 +46,11 @@ public class LeaderBoardService {
 
 			if (!bestLikesPidAll.isEmpty()) {
 				for (int i = 0; i < 10; i++) {
-					BestPost bestPost = new BestPost();
-					bestPost.setPeriod(period);
-					bestPost.setRank(i + 1);
-					bestPost.setPid(bestLikesPidAll.get(i));
+					BestPost bestPost = BestPost.builder()
+						.period(period)
+						.rank(i+1)
+						.pid(bestLikesPidAll.get(i))
+						.build();
 
 					bestLikesPostList.add(bestPost);
 				}
@@ -58,10 +59,11 @@ public class LeaderBoardService {
 
 			if (!bestViewsPidAll.isEmpty()) {
 				for (int i = 0; i < 10; i++) {
-					BestPost bestPost = new BestPost();
-					bestPost.setPeriod(period);
-					bestPost.setRank(i+1);
-					bestPost.setPid(bestViewsPidAll.get(i));
+					BestPost bestPost = BestPost.builder()
+						.period(period)
+						.rank(i+1)
+						.pid(bestViewsPidAll.get(i))
+						.build();
 
 					bestViewsPostList.add(bestPost);
 				}
@@ -94,11 +96,12 @@ public class LeaderBoardService {
 
 				if (!bestLikesPidBoard.isEmpty()) {
 					for (int i = 0; i < 10; i++) {
-						BestPost bestPost = new BestPost();
-						bestPost.setBid(bid);
-						bestPost.setPeriod(period);
-						bestPost.setRank(i + 1);
-						bestPost.setPid(bestLikesPidBoard.get(i));
+						BestPost bestPost = BestPost.builder()
+							.bid(bid)
+							.period(period)
+							.rank(i+1)
+							.pid(bestLikesPidBoard.get(i))
+							.build();
 
 						bestLikesPostList.add(bestPost);
 					}
@@ -107,11 +110,12 @@ public class LeaderBoardService {
 
 				if (!bestViewsPidBoard.isEmpty()) {
 					for (int i = 0; i < 10; i++) {
-						BestPost bestPost = new BestPost();
-						bestPost.setBid(bid);
-						bestPost.setPeriod(period);
-						bestPost.setRank(i+1);
-						bestPost.setPid(bestViewsPidBoard.get(i));
+						BestPost bestPost = BestPost.builder()
+							.bid(bid)
+							.period(period)
+							.rank(i+1)
+							.pid(bestViewsPidBoard.get(i))
+							.build();
 
 						bestViewsPostList.add(bestPost);
 					}

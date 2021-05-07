@@ -50,9 +50,7 @@ public class BoardService {
         boardRepository.increaseReqRecent(bid);
         boardRepository.increaseReqToday(bid);
 
-        Pagination pagination = new Pagination();
-        pagination.setGroupSize(10);
-        pagination.setPageSize(20);
+        Pagination pagination = Pagination.builder().groupSize(10).pageSize(20).build();
         pagination.pageInfo(groupIndex, pageIndex, postRepository.countPost(bid));
 
         BoardPage boardPage = BoardPage.builder()
@@ -74,9 +72,7 @@ public class BoardService {
         boardRepository.increaseReqRecent(bid);
         boardRepository.increaseReqToday(bid);
 
-        Pagination pagination = new Pagination();
-        pagination.setGroupSize(10);
-        pagination.setPageSize(20);
+        Pagination pagination = Pagination.builder().groupSize(10).pageSize(20).build();
         pagination.pageInfo(groupIndex, pageIndex, postRepository.countPostCategory(bid, category));
 
         BoardPage boardPage = BoardPage.builder()

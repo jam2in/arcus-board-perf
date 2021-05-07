@@ -51,9 +51,7 @@ public class PostService {
         boardRepository.increaseReqRecent(post.getBid());
         boardRepository.increaseReqToday(post.getBid());
 
-        Pagination pagination = new Pagination();
-        pagination.setGroupSize(5);
-        pagination.setPageSize(10);
+        Pagination pagination = Pagination.builder().groupSize(5).pageSize(10).build();
         pagination.pageInfo(groupIndex, pageIndex, post.getCmtCnt());
 
         PostPage postPage = PostPage.builder()

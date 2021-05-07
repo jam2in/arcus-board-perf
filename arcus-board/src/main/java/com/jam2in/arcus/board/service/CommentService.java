@@ -49,9 +49,7 @@ public class CommentService {
     public PostPage editCmt(int pid, int cid, int groupIndex, int pageIndex) {
         Post post = postRepository.selectOne(pid);
 
-        Pagination pagination = new Pagination();
-        pagination.setGroupSize(5);
-        pagination.setPageSize(10);
+        Pagination pagination = Pagination.builder().groupSize(5).pageSize(10).build();
         pagination.pageInfo(groupIndex, pageIndex, post.getCmtCnt());
 
         PostPage postPage = PostPage.builder()

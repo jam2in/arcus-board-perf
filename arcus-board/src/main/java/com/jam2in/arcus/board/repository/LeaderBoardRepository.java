@@ -1,7 +1,6 @@
 package com.jam2in.arcus.board.repository;
 
 import java.util.List;
-import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
