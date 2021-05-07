@@ -51,6 +51,18 @@
         INNER JOIN category_post c ON p.category = c.id
         ORDER BY pid DESC
     </select>
+
+    <select id="selectLatestNotice" resultType="com.jam2in.arcus.board.model.Post">
+        SELECT p.*, u.name userName, c.name categoryName
+        FROM (
+        SELECT * FROM post
+        WHERE bid = #{bid} and category = 1
+        ORDER BY pid DESC
+        LIMIT 0, 3
+        ) p INNER JOIN user u ON p.uid = u.uid
+        INNER JOIN category_post c ON p.category = c.id
+        ORDER BY pid DESC
+    </select>
     
     <select id="bestLikesAll" resultType="java.lang.Integer">
         SELECT pid FROM post

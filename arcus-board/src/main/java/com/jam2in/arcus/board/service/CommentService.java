@@ -1,14 +1,15 @@
 package com.jam2in.arcus.board.service;
 
 import com.jam2in.arcus.board.model.Comment;
+import com.jam2in.arcus.board.model.Pagination;
+import com.jam2in.arcus.board.model.Post;
+import com.jam2in.arcus.board.model.PostPage;
 import com.jam2in.arcus.board.repository.BoardRepository;
 import com.jam2in.arcus.board.repository.CommentRepository;
 import com.jam2in.arcus.board.repository.PostRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class CommentService {
@@ -34,21 +35,36 @@ public class CommentService {
         boardRepository.increaseReqToday(bid);
     }
 
-    public void deleteCmt(int cid) {
+    public int deleteCmt(int cid) {
         int pid = commentRepository.selectOne(cid).getPid();
         int bid = postRepository.selectOne(pid).getBid();
         commentRepository.delete(cid);
         postRepository.decreaseCmt(pid);
         boardRepository.increaseReqRecent(bid);
         boardRepository.increaseReqToday(bid);
+
+        return pid;
     }
 
-    public Comment selectOneCmt(int cid) {
-       return commentRepository.selectOne(cid);
-    }
+    public PostPage editCmt(int pid, int cid, int groupIndex, int pageIndex) {
+        Post post = postRepository.selectOne(pid);
 
-    public List<Comment> selectAllCmt(int pid, int startList, int pageSize) {
-        return commentRepository.selectAll(pid, startList, pageSize);
+        Pagination pagination = new Pagination();
+        pagination.setGroupSize(5);
+        pagination.setPageSize(10);
+        pagination.pageInfo(groupIndex, pageIndex, post.getCmtCnt());
+
+        PostPage postPage = PostPage.builder()
+            .post(post)
+            .board(boardRepository.selectOne(post.getBid()))
+            .boardList(boardRepository.selectAll())
+            .boardCategory(boardRepository.boardCategoryAll())
+            .pagination(pagination)
+            .cmtList(commentRepository.selectAll(pid, pagination.getStartList()-1, pagination.getPageSize()))
+            .comment(commentRepository.selectOne(cid))
+            .build();
+
+        return postPage;
     }
 
 }

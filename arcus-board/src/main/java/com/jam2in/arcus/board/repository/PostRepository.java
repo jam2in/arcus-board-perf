@@ -18,7 +18,7 @@ public interface PostRepository {
     Post selectOne(int pid);
     List<Post> selectAll(@Param("bid") int bid, @Param("startList") int startList, @Param("pageSize") int pageSize);
     List<Post> selectCategory(@Param("bid") int bid, @Param("category") int category, @Param("startList") int startList, @Param("pageSize") int pageSize);
-
+    List<Post> selectLatestNotice(int bid);
     List<Integer> bestLikesAll();
     List<Integer> bestLikesMonth();
     List<Integer> bestLikesToday();

@@ -1,40 +1,28 @@
 package com.jam2in.arcus.board.controller;
 
-import com.jam2in.arcus.board.model.Board;
-import com.jam2in.arcus.board.model.Category;
 import com.jam2in.arcus.board.model.Comment;
-import com.jam2in.arcus.board.model.Pagination;
 import com.jam2in.arcus.board.model.Post;
-import com.jam2in.arcus.board.service.BoardService;
-import com.jam2in.arcus.board.service.CommentService;
+import com.jam2in.arcus.board.model.PostPage;
 import com.jam2in.arcus.board.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @Controller
 public class PostController {
     @Autowired
     private PostService postService;
-    @Autowired
-    private BoardService boardService;
-    @Autowired
-    private CommentService commentService;
 
     @RequestMapping(path = "/post/write")
     public String writePost(@RequestParam("bid") int bid, @ModelAttribute Post post, Model model) {
-        Board board = boardService.selectOneBoard(bid);
-        List<Board> boardList = boardService.selectAllBoard();
-        List<Category> boardCategory = boardService.boardCategoryAll();
-        List<Category> postCategory = postService.postCategoryAll();
+        PostPage postPage = postService.writePost(bid);
 
-        model.addAttribute("board", board);
-        model.addAttribute("boardList", boardList);
-        model.addAttribute("boardCategory", boardCategory);
-        model.addAttribute("postCategory", postCategory);
+        model.addAttribute("board", postPage.getBoard());
+        model.addAttribute("boardList", postPage.getBoardList());
+        model.addAttribute("boardCategory", postPage.getBoardCategory());
+        model.addAttribute("postCategory", postPage.getPostCategory());
 
         if (bid == 1) {
             return "notice/write";
@@ -53,27 +41,17 @@ public class PostController {
 
     @RequestMapping(path = "/post/detail", params = {"pid"})
     public String detailPost(@RequestParam("pid") int pid, @RequestParam(defaultValue = "1") int groupIndex, @RequestParam(defaultValue = "1") int pageIndex, @ModelAttribute Comment comment, Model model) {
-        Post post = postService.detailPost(pid);
-        Board board = boardService.selectOneBoard(post.getBid());
-        List<Board> boardList = boardService.selectAllBoard();
-        List<Category> boardCategory = boardService.boardCategoryAll();
+        PostPage postPage = postService.detailPost(pid, groupIndex, pageIndex);
 
-        Pagination pagination = new Pagination();
-        pagination.setGroupSize(5);
-        pagination.setPageSize(10);
-        pagination.pageInfo(groupIndex, pageIndex, post.getCmtCnt());
+        model.addAttribute("post", postPage.getPost());
+        model.addAttribute("board", postPage.getBoard());
+        model.addAttribute("boardList", postPage.getBoardList());
+        model.addAttribute("boardCategory", postPage.getBoardCategory());
 
-        List<Comment> cmtList = commentService.selectAllCmt(pid, pagination.getStartList()-1, pagination.getPageSize());
+        model.addAttribute("pagination", postPage.getPagination());
+        model.addAttribute("cmtList", postPage.getCmtList());
 
-        model.addAttribute("post", post);
-        model.addAttribute("board", board);
-        model.addAttribute("boardList", boardList);
-        model.addAttribute("boardCategory", boardCategory);
-
-        model.addAttribute("cmtList", cmtList);
-        model.addAttribute("pagination", pagination);
-
-        if (post.getBid() == 1) {
+        if (postPage.getBoard().getBid() == 1) {
             return "notice/detail";
         }
         else {
@@ -84,19 +62,15 @@ public class PostController {
 
     @RequestMapping(path = "/post/edit")
     public String editPost(@RequestParam("pid") int pid, Model model) {
-        Post post = postService.selectOnePost(pid);
-        Board board = boardService.selectOneBoard(post.getBid());
-        List<Board> boardList = boardService.selectAllBoard();
-        List<Category> boardCategory = boardService.boardCategoryAll();
-        List<Category> postCategory = postService.postCategoryAll();
+        PostPage postPage = postService.editPost(pid);
 
-        model.addAttribute("post", post);
-        model.addAttribute("board", board);
-        model.addAttribute("boardList", boardList);
-        model.addAttribute("boardCategory", boardCategory);
-        model.addAttribute("postCategory", postCategory);
+        model.addAttribute("post", postPage.getPost());
+        model.addAttribute("board", postPage.getBoard());
+        model.addAttribute("boardList", postPage.getBoardList());
+        model.addAttribute("boardCategory", postPage.getBoardCategory());
+        model.addAttribute("postCategory", postPage.getPostCategory());
 
-        if (post.getBid() == 1) {
+        if (postPage.getBoard().getBid() == 1) {
             return "notice/edit";
         }
         else {
@@ -113,8 +87,7 @@ public class PostController {
 
     @RequestMapping(path = "/post/delete")
     public String deletePost(@RequestParam("pid") int pid) {
-        int bid = postService.selectOnePost(pid).getBid();
-        postService.deletePost(pid);
+        int bid = postService.deletePost(pid);
 
         return "redirect:/board?bid="+bid;
     }
@@ -127,7 +100,8 @@ public class PostController {
         return "redirect:/post/detail?pid="+pid;
     }
 
-/*    @ResponseBody
+/*
+    @ResponseBody
     @RequestMapping(path = "/post/like", method = RequestMethod.POST, produces = "application/json; charset=utf8")
     public ResponseEntity likePost(@RequestBody HashMap<String,Integer> hashMap) {
         int pid = hashMap.get("pid");
@@ -136,6 +110,7 @@ public class PostController {
         int likes = postService.selectOnePost(pid).getLikes();
 
         return new ResponseEntity(likes, HttpStatus.OK);
-    }*/
+    }
+*/
 
 }

@@ -1,7 +1,5 @@
 package com.jam2in.arcus.board.controller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -9,19 +7,13 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.jam2in.arcus.board.model.Board;
-import com.jam2in.arcus.board.model.Category;
 import com.jam2in.arcus.board.model.Comment;
-import com.jam2in.arcus.board.model.Pagination;
-import com.jam2in.arcus.board.model.Post;
-import com.jam2in.arcus.board.service.BoardService;
+import com.jam2in.arcus.board.model.PostPage;
 import com.jam2in.arcus.board.service.CommentService;
 import com.jam2in.arcus.board.service.PostService;
 
 @Controller
 public class TestController {
-	@Autowired
-	BoardService boardService;
 	@Autowired
 	PostService postService;
 	@Autowired
@@ -29,27 +21,17 @@ public class TestController {
 
 
 	@RequestMapping(path = "/test/post")
-	public String postDetail(@RequestParam("bid") int bid, @RequestParam(defaultValue = "1") int groupIndex, @RequestParam(defaultValue = "1") int pageIndex, @ModelAttribute Comment comment, Model model) {
+	public String detailPost(@RequestParam("bid") int bid, @RequestParam(defaultValue = "1") int groupIndex, @RequestParam(defaultValue = "1") int pageIndex, @ModelAttribute Comment comment, Model model) {
 		int pid = postService.selectLatestRandom(bid);
-		Post post = postService.detailPost(pid);
-		Board board = boardService.selectOneBoard(bid);
-		List<Board> boardList = boardService.selectAllBoard();
-		List<Category> boardCategory = boardService.boardCategoryAll();
+		PostPage postPage = postService.detailPost(pid, groupIndex, pageIndex);
 
-		Pagination pagination = new Pagination();
-		pagination.setGroupSize(5);
-		pagination.setPageSize(10);
-		pagination.pageInfo(groupIndex, pageIndex, post.getCmtCnt());
+		model.addAttribute("post", postPage.getPost());
+		model.addAttribute("board", postPage.getBoard());
+		model.addAttribute("boardList", postPage.getBoardList());
+		model.addAttribute("boardCategory", postPage.getBoardCategory());
 
-		List<Comment> cmtList = commentService.selectAllCmt(pid, pagination.getStartList()-1, pagination.getPageSize());
-
-		model.addAttribute("post", post);
-		model.addAttribute("board", board);
-		model.addAttribute("boardList", boardList);
-		model.addAttribute("boardCategory", boardCategory);
-
-		model.addAttribute("cmtList", cmtList);
-		model.addAttribute("pagination", pagination);
+		model.addAttribute("pagination", postPage.getPagination());
+		model.addAttribute("cmtList", postPage.getCmtList());
 
 		return "post/detail";
 	}

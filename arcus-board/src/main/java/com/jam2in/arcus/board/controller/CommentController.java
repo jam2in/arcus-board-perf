@@ -1,15 +1,8 @@
 package com.jam2in.arcus.board.controller;
 
-import java.util.List;
-
-import com.jam2in.arcus.board.model.Board;
-import com.jam2in.arcus.board.model.Category;
 import com.jam2in.arcus.board.model.Comment;
-import com.jam2in.arcus.board.model.Pagination;
-import com.jam2in.arcus.board.model.Post;
-import com.jam2in.arcus.board.service.BoardService;
+import com.jam2in.arcus.board.model.PostPage;
 import com.jam2in.arcus.board.service.CommentService;
-import com.jam2in.arcus.board.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,12 +13,9 @@ import org.springframework.web.bind.annotation.*;
 public class CommentController {
     @Autowired
     CommentService commentService;
-    @Autowired
-    PostService postService;
-    @Autowired
-    BoardService boardService;
 
-/*    @ResponseBody
+/*
+    @ResponseBody
     @RequestMapping(path = "/comment", method = RequestMethod.POST, produces = "application/json; charset=utf8")
     public ResponseEntity CmtList(@RequestBody HashMap<String,Integer> hashMap) {
         int pid = hashMap.get("pid");
@@ -44,7 +34,8 @@ public class CommentController {
         map.put("pagination", pagination);
 
         return new ResponseEntity(map, HttpStatus.OK);
-    }*/
+    }
+*/
 
     @RequestMapping(path = "/comment/insert")
     public String insertCmt(@ModelAttribute Comment comment) {
@@ -55,30 +46,19 @@ public class CommentController {
 
     @RequestMapping(path = "/comment/edit")
     public String editCmt(@RequestParam("pid") int pid, @RequestParam("cid") int cid, @RequestParam(defaultValue = "1") int groupIndex, @RequestParam(defaultValue = "1") int pageIndex, Model model) {
-        Post post = postService.selectOnePost(pid);
-        Board board = boardService.selectOneBoard(post.getBid());
-        List<Board> boardList = boardService.selectAllBoard();
-        List<Category> boardCategory = boardService.boardCategoryAll();
+        PostPage postPage = commentService.editCmt(pid, cid, groupIndex, pageIndex);
 
-        Pagination pagination = new Pagination();
-        pagination.setGroupSize(5);
-        pagination.setPageSize(10);
-        pagination.pageInfo(groupIndex, pageIndex, post.getCmtCnt());
+        model.addAttribute("post", postPage.getPost());
+        model.addAttribute("board", postPage.getBoard());
+        model.addAttribute("boardList", postPage.getBoardList());
+        model.addAttribute("boardCategory", postPage.getBoardCategory());
+        model.addAttribute("pagination", postPage.getPagination());
+        model.addAttribute("cmtList", postPage.getCmtList());
+        model.addAttribute("comment", postPage.getComment());
 
-        List<Comment> cmtList = commentService.selectAllCmt(pid, pagination.getStartList()-1, pagination.getPageSize());
-        Comment comment = commentService.selectOneCmt(cid);
-
-        model.addAttribute("post", post);
-        model.addAttribute("board", board);
-        model.addAttribute("boardList", boardList);
-        model.addAttribute("boardCategory", boardCategory);
-
-        model.addAttribute("cmtList", cmtList);
-        model.addAttribute("pagination", pagination);
         model.addAttribute("cid", cid);
-        model.addAttribute("comment", comment);
 
-        if (post.getBid() == 1) {
+        if (postPage.getPost().getBid() == 1) {
             return "notice/detail";
         }
         else {
@@ -95,8 +75,7 @@ public class CommentController {
 
     @RequestMapping(path = "/comment/delete")
     public String deleteCmt(@RequestParam("cid") int cid) {
-        int pid = commentService.selectOneCmt(cid).getPid();
-        commentService.deleteCmt(cid);
+        int pid = commentService.deleteCmt(cid);
 
         return "redirect:/post/detail?pid="+pid;
     }

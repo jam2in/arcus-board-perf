@@ -11,9 +11,6 @@ import java.util.List;
 @Mapper
 @Repository
 public interface BoardRepository {
-    void insert(Board board);
-    void update(Board board);
-    void delete(int id);
     Board selectOne(int id);
     List<Board> selectAll();
 

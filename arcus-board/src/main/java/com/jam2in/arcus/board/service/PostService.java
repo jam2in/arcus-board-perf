@@ -1,9 +1,11 @@
 package com.jam2in.arcus.board.service;
 
-import com.jam2in.arcus.board.model.Category;
+import com.jam2in.arcus.board.model.Board;
 import com.jam2in.arcus.board.model.Pagination;
 import com.jam2in.arcus.board.model.Post;
+import com.jam2in.arcus.board.model.PostPage;
 import com.jam2in.arcus.board.repository.BoardRepository;
+import com.jam2in.arcus.board.repository.CommentRepository;
 import com.jam2in.arcus.board.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,8 @@ public class PostService {
     private PostRepository postRepository;
     @Autowired
     private BoardRepository boardRepository;
+    @Autowired
+    private CommentRepository commentRepository;
 
     public void insertPost(Post post) {
         postRepository.insert(post);
@@ -31,55 +35,65 @@ public class PostService {
         boardRepository.increaseReqToday(bid);
     }
 
-    public void deletePost(int pid) {
+    public int deletePost(int pid) {
         int bid = postRepository.selectOne(pid).getBid();
         postRepository.delete(pid);
         boardRepository.increaseReqRecent(bid);
         boardRepository.increaseReqToday(bid);
+
+        return bid;
     }
 
-    public Post detailPost(int pid) {
+    public PostPage detailPost(int pid, int groupIndex, int pageIndex) {
         postRepository.increaseViews(pid);
         Post post = postRepository.selectOne(pid);
+        Board board = boardRepository.selectOne(post.getBid());
         boardRepository.increaseReqRecent(post.getBid());
         boardRepository.increaseReqToday(post.getBid());
-        return post;
+
+        Pagination pagination = new Pagination();
+        pagination.setGroupSize(5);
+        pagination.setPageSize(10);
+        pagination.pageInfo(groupIndex, pageIndex, post.getCmtCnt());
+
+        PostPage postPage = PostPage.builder()
+            .post(post)
+            .board(board)
+            .boardList(boardRepository.selectAll())
+            .boardCategory(boardRepository.boardCategoryAll())
+            .pagination(pagination)
+            .cmtList(commentRepository.selectAll(pid, pagination.getStartList()-1, pagination.getPageSize()))
+            .build();
+
+        return postPage;
     }
 
-    public Post selectOnePost(int pid) {
-        return postRepository.selectOne(pid);
+    public PostPage writePost(int bid) {
+        PostPage postPage = PostPage.builder()
+            .board(boardRepository.selectOne(bid))
+            .boardList(boardRepository.selectAll())
+            .boardCategory(boardRepository.boardCategoryAll())
+            .postCategory(postRepository.postCategoryAll())
+            .build();
+
+        return postPage;
     }
 
-    public List<Post> postList(int bid, Pagination pagination) {
-        boardRepository.increaseReqRecent(bid);
-        boardRepository.increaseReqToday(bid);
-        return postRepository.selectAll(bid, pagination.getStartList()-1, pagination.getPageSize());
-    }
+    public PostPage editPost(int pid) {
+        Post post = postRepository.selectOne(pid);
+        PostPage postPage = PostPage.builder()
+            .post(postRepository.selectOne(pid))
+            .board(boardRepository.selectOne(post.getBid()))
+            .boardList(boardRepository.selectAll())
+            .boardCategory(boardRepository.boardCategoryAll())
+            .postCategory(postRepository.postCategoryAll())
+            .build();
 
-    public List<Post> postCategoryList(int bid, int category, Pagination pagination) {
-        boardRepository.increaseReqRecent(bid);
-        boardRepository.increaseReqToday(bid);
-        return postRepository.selectCategory(bid, category, pagination.getStartList()-1, pagination.getPageSize());
-    }
-
-    public List<Post> selectLatestNotice(int bid) {
-        return postRepository.selectCategory(bid, 1, 0, 3);
-    }
-
-    public int countPost(int bid) {
-        return postRepository.countPost(bid);
-    }
-
-    public int countPostCategory(int bid, int category) {
-        return postRepository.countPostCategory(bid, category);
+        return postPage;
     }
 
     public void likePost(int id) {
         postRepository.likePost(id);
-    }
-
-    public List<Category> postCategoryAll(){
-        return postRepository.postCategoryAll();
     }
 
     public int selectLatestRandom(int bid) {
