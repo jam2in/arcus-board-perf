@@ -20,10 +20,10 @@ public class LeaderBoardService {
 
 	@Scheduled(cron = "0 0/10 * * * *")
 	public void resetLeaderBoard() {
-		leaderBoardRepository.resetBestLikesAll();
-		leaderBoardRepository.resetBestLikesBoard();
-		leaderBoardRepository.resetBestViewsAll();
-		leaderBoardRepository.resetBestViewsBoard();
+		leaderBoardRepository.deleteBestLikesAll();
+		leaderBoardRepository.deleteBestLikesBoard();
+		leaderBoardRepository.deleteBestViewsAll();
+		leaderBoardRepository.deleteBestViewsBoard();
 
 		List<Integer> bestLikesPidAll;
 		List<Integer> bestViewsPidAll;

@@ -45,12 +45,12 @@
 
     <update id="resetReqRecent">
         UPDATE best_board_request
-        SET request = DEFAULT
+        SET request = 0
     </update>
 
     <update id="resetReqToday">
         UPDATE board
-        SET req_today = DEFAULT
+        SET req_today = 0
     </update>
 
     <select id="boardCategoryAll" resultType="com.jam2in.arcus.board.model.Category">

@@ -12,10 +12,10 @@ import com.jam2in.arcus.board.model.Post;
 @Mapper
 @Repository
 public interface LeaderBoardRepository {
-	void resetBestLikesAll();
-	void resetBestLikesBoard();
-	void resetBestViewsAll();
-	void resetBestViewsBoard();
+	void deleteBestLikesAll();
+	void deleteBestLikesBoard();
+	void deleteBestViewsAll();
+	void deleteBestViewsBoard();
 
 	void insertBestLikesAll(List<BestPost> bestPostList);
 	void insertBestLikesBoard(List<BestPost> bestPostList);

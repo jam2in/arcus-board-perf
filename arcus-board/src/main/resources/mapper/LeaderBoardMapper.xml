@@ -4,20 +4,20 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.jam2in.arcus.board.repository.LeaderBoardRepository">
-    <delete id="resetBestLikesAll">
-        truncate best_likes_all;
+    <delete id="deleteBestLikesAll">
+        TRUNCATE best_likes_all;
     </delete>
 
-    <delete id="resetBestLikesBoard">
-        truncate best_likes_board;
+    <delete id="deleteBestLikesBoard">
+        TRUNCATE best_likes_board;
     </delete>
 
-    <delete id="resetBestViewsAll">
-        truncate best_views_all;
+    <delete id="deleteBestViewsAll">
+        TRUNCATE best_views_all;
     </delete>
 
-    <delete id="resetBestViewsBoard">
-        truncate best_views_board;
+    <delete id="deleteBestViewsBoard">
+        TRUNCATE best_views_board;
     </delete>
 
     <insert id="insertBestLikesAll" parameterType="java.util.List">

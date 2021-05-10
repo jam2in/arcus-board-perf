@@ -10,8 +10,6 @@ import com.jam2in.arcus.board.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class PostService {
     @Autowired
@@ -92,11 +90,5 @@ public class PostService {
 
     public void likePost(int id) {
         postRepository.likePost(id);
-    }
-
-    public int selectLatestRandom(int bid) {
-        List<Post> postList = postRepository.selectAll(bid, 0, 100);
-        int index = (int)(Math.random() * 100);
-        return postList.get(index).getPid();
     }
 }
