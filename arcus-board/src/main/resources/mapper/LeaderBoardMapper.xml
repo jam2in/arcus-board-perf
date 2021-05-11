@@ -53,7 +53,7 @@
     </insert>
 
     <select id="bestLikesAll" resultType="com.jam2in.arcus.board.model.Post">
-        SELECT p.*
+        SELECT p.pid, p.title
         FROM (
         SELECT * FROM best_likes_all
         WHERE period = #{period}
@@ -63,7 +63,7 @@
     </select>
 
     <select id="bestLikesBoard" resultType="com.jam2in.arcus.board.model.Post">
-        SELECT p.*
+        SELECT p.pid, p.title
         FROM (
         SELECT * FROM best_likes_board
         WHERE bid = #{bid} and period = #{period}
@@ -73,7 +73,7 @@
     </select>
 
     <select id="bestViewsAll" resultType="com.jam2in.arcus.board.model.Post">
-        SELECT p.*
+        SELECT p.pid, p.title
         FROM (
         SELECT * FROM best_views_all
         WHERE period = #{period}
@@ -83,7 +83,7 @@
     </select>
 
     <select id="bestViewsBoard" resultType="com.jam2in.arcus.board.model.Post">
-        SELECT p.*
+        SELECT p.pid, p.title
         FROM (
         SELECT * FROM best_views_board
         WHERE bid = #{bid} and period = #{period}

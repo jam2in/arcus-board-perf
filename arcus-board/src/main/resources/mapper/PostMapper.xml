@@ -28,7 +28,7 @@
     </select>
 
     <select id="selectAll" resultType="com.jam2in.arcus.board.model.Post">
-        SELECT p.*, u.name userName, c.name categoryName
+        SELECT p.pid, p.title, p.likes, p.views, p.created_date, p.cmtCnt, u.name userName, c.name categoryName
         FROM (
         SELECT * FROM post
         USE INDEX(idx_post)
@@ -41,7 +41,7 @@
     </select>
 
     <select id="selectCategory" resultType="com.jam2in.arcus.board.model.Post">
-        SELECT p.*, u.name userName, c.name categoryName
+        SELECT p.pid, p.title, p.likes, p.views, p.created_date, p.cmtCnt, u.name userName, c.name categoryName
         FROM (
         SELECT * FROM post
         WHERE bid = #{bid} and category = #{category}
@@ -53,7 +53,7 @@
     </select>
 
     <select id="selectLatestNotice" resultType="com.jam2in.arcus.board.model.Post">
-        SELECT p.*, u.name userName, c.name categoryName
+        SELECT p.title, u.name userName, c.name categoryName
         FROM (
         SELECT * FROM post
         WHERE bid = #{bid} and category = 1
