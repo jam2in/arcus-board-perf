@@ -13,7 +13,7 @@
 </head>
 
 <body>
-<th:block th:replace="/common.html :: commonFragment"></th:block>
+<th:block th:replace="common.html :: commonFragment"></th:block>
 
 <div>
     <h2 class="ml-3" th:text="${board.name}"></h2>
@@ -56,7 +56,7 @@
 
     <a role="button" class="btn btn-info likeBtn ml-3" id="btnLike" th:href="@{'/post/like?pid='+${post.pid}}" th:text="'추천  '+${post.likes}"></a>
 
-    <th:block th:replace="/comment.html :: cmtFragment"></th:block>
+    <th:block th:replace="comment.html :: cmtFragment"></th:block>
 
 <!--    <button class="btn btn-info ml-3" id="btnLike">
                 <span id="likes" th:text="'추천    '+${post.likes}"></span>

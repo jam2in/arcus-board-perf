@@ -53,7 +53,7 @@
     </select>
 
     <select id="selectLatestNotice" resultType="com.jam2in.arcus.board.model.Post">
-        SELECT p.title, u.name userName, c.name categoryName
+        SELECT p.pid, p.title, u.name userName, c.name categoryName
         FROM (
         SELECT * FROM post
         WHERE bid = #{bid} and category = 1

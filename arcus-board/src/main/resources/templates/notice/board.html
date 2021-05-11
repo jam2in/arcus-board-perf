@@ -9,7 +9,7 @@
 </head>
 
 <body>
-<th:block th:replace="/common.html :: commonFragment"></th:block>
+<th:block th:replace="common.html :: commonFragment"></th:block>
 
 <div>
     <h2 class="ml-3" th:text="${board.name}"></h2>
@@ -118,19 +118,17 @@
     <table class="table">
         <tr>
             <th>추천</th>
+            <th></th>
             <th>분류</th>
             <th>제목</th>
             <th></th>
             <th>작성자</th>
             <th>조회수</th>
             <th>작성일</th>
-            <th></th>
         </tr>
         <tr th:each="post: ${postList}">
             <td th:text="${post.likes}"><td>
-            <span th:if="${post.category == 1}">공지</span>
-            <span th:if="${post.category == 2}">질문</span>
-            <span th:if="${post.category == 3}">잡담</span>
+            <td th:text="${post.categoryName}"></td>
             <td><a class="text-dark" th:text="${post.title}+'  ['+${post.cmtCnt}+']'" th:href="@{'/post/detail?pid='+${post.pid}}"></a><td>
             <td th:text="${post.userName}"></td>
             <td th:text="${post.views}"></td>

@@ -68,63 +68,53 @@ CREATE TABLE IF NOT EXISTS `category_post` (
 
 
 CREATE TABLE IF NOT EXISTS `best_likes_all` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
   `period` int(11) NOT NULL,
   `rank` int(11) unsigned NOT NULL,
   `pid` bigint(20) unsigned NOT NULL,
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`period`,`rank`),
   KEY `foreign_pid` (`pid`),
-  KEY `idx_ranking` (`period`,`rank`),
   CONSTRAINT `best_likes_all_pid` FOREIGN KEY (`pid`) REFERENCES `post` (`pid`) ON DELETE NO ACTION ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 CREATE TABLE IF NOT EXISTS `best_likes_board` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
   `bid` bigint(20) unsigned NOT NULL,
   `period` int(11) NOT NULL,
   `rank` int(11) unsigned NOT NULL,
   `pid` bigint(20) unsigned NOT NULL,
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`bid`,`period`,`rank`),
   KEY `foreign_pid` (`pid`),
-  KEY `idx_ranking` (`bid`,`period`,`rank`),
   CONSTRAINT `best_likes_board_bid` FOREIGN KEY (`bid`) REFERENCES `board` (`bid`) ON DELETE CASCADE ON UPDATE NO ACTION,
   CONSTRAINT `best_likes_board_pid` FOREIGN KEY (`pid`) REFERENCES `post` (`pid`) ON DELETE NO ACTION ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 CREATE TABLE IF NOT EXISTS `best_views_all` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
   `period` int(11) NOT NULL,
   `rank` int(11) unsigned NOT NULL,
   `pid` bigint(20) unsigned NOT NULL,
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`period`,`rank`),
   KEY `foreign_pid` (`pid`),
-  KEY `idx_ranking` (`period`,`rank`),
   CONSTRAINT `best_views_all_pid` FOREIGN KEY (`pid`) REFERENCES `post` (`pid`) ON DELETE NO ACTION ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 CREATE TABLE IF NOT EXISTS `best_views_board` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
   `bid` bigint(20) unsigned NOT NULL,
   `period` int(11) NOT NULL,
   `rank` int(11) unsigned NOT NULL,
   `pid` bigint(20) unsigned NOT NULL,
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`bid`,`period`,`rank`),
   KEY `foreign_pid` (`pid`),
-  KEY `idx_ranking` (`bid`,`period`,`rank`),
   CONSTRAINT `best_views_board_bid` FOREIGN KEY (`bid`) REFERENCES `board` (`bid`) ON DELETE CASCADE ON UPDATE NO ACTION,
   CONSTRAINT `best_views_board_pid` FOREIGN KEY (`pid`) REFERENCES `post` (`pid`) ON DELETE NO ACTION ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 CREATE TABLE IF NOT EXISTS `best_board_request` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
   `bid` bigint(20) unsigned NOT NULL,
   `time` time NOT NULL,
   `request` bigint(20) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`),
-  KEY `idx_time` (`bid`,`time`),
+  PRIMARY KEY (`bid`,`time`),
   CONSTRAINT `board_bid` FOREIGN KEY (`bid`) REFERENCES `board` (`bid`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

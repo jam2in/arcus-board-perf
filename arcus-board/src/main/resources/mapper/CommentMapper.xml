@@ -37,7 +37,6 @@
         LIMIT #{startList}, #{pageSize}
         ) c INNER JOIN user u
         ON c.uid = u.uid
-        ORDER BY cid ASC
     </select>
 
 

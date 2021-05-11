@@ -16,7 +16,7 @@ TRUNCATE post;
 
 SET FOREIGN_KEY_CHECKS=1;
 
-LOAD DATA LOCAL INFILE 'C:/Users/jam2in/Desktop/sy/user.csv' INTO TABLE user
+LOAD DATA LOCAL INFILE '/home/jam2in/arcus-board-perf/arcus-board/csv/user.csv' INTO TABLE user
 CHARACTER SET utf8 FIELDS TERMINATED BY ','
 LINES TERMINATED BY '\n' (uid, name, created_date);
 
@@ -43,14 +43,14 @@ INSERT INTO category_post(id, name) VALUES(1, "공지");
 INSERT INTO category_post(id, name) VALUES(2, "질문");
 INSERT INTO category_post(id, name) VALUES(3, "잡담");
 
-LOAD DATA LOCAL INFILE 'C:/Users/jam2in/Desktop/sy/time.csv' INTO TABLE best_board_request
+LOAD DATA LOCAL INFILE '/home/jam2in/arcus-board-perf/arcus-board/csv/time.csv' INTO TABLE best_board_request
 CHARACTER SET utf8 FIELDS TERMINATED BY ','
-LINES TERMINATED BY '\n' (id, bid, time, request);
+LINES TERMINATED BY ';' (bid, time);
 
-LOAD DATA LOCAL INFILE 'C:/Users/jam2in/Desktop/sy/post.csv' INTO TABLE post
+LOAD DATA LOCAL INFILE '/home/jam2in/arcus-board-perf/arcus-board/csv/post.csv' INTO TABLE post
 CHARACTER SET utf8 FIELDS TERMINATED BY ','
 LINES TERMINATED BY ';' (pid, uid, bid, category, title, content, likes, views, cmtCnt);
 
-LOAD DATA LOCAL INFILE 'C:/Users/jam2in/Desktop/sy/cmt.csv' INTO TABLE comment
+LOAD DATA LOCAL INFILE '/home/jam2in/arcus-board-perf/arcus-board/csv/cmt.csv' INTO TABLE comment
 CHARACTER SET utf8 FIELDS TERMINATED BY ','
 LINES TERMINATED BY ';' (uid,pid,content);
