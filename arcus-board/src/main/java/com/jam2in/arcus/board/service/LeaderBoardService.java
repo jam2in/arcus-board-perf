@@ -8,6 +8,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.jam2in.arcus.board.model.BestPost;
+import com.jam2in.arcus.board.model.Post;
 import com.jam2in.arcus.board.repository.LeaderBoardRepository;
 import com.jam2in.arcus.board.repository.PostRepository;
 
@@ -125,5 +126,23 @@ public class LeaderBoardService {
 		}
 		leaderBoardRepository.insertBestLikesBoard(bestLikesPostList);
 		leaderBoardRepository.insertBestViewsBoard(bestViewsPostList);
+
 	}
+
+	public List<Post> bestLikesAll(int period) {
+		return leaderBoardRepository.bestLikesAll(period);
+	}
+
+	public List<Post> bestViewsAll(int period) {
+		return leaderBoardRepository.bestViewsAll(period);
+	}
+
+	public List<Post> bestLikesBoard(int bid, int period) {
+		return leaderBoardRepository.bestLikesBoard(bid, period);
+	}
+
+	public List<Post> bestViewsBoard(int bid, int period) {
+		return leaderBoardRepository.bestViewsBoard(bid, period);
+	}
+
 }

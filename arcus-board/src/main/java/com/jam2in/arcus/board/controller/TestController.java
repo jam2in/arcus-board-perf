@@ -1,6 +1,7 @@
 package com.jam2in.arcus.board.controller;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -9,9 +10,11 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.jam2in.arcus.board.model.BoardPage;
+import com.jam2in.arcus.board.model.Board;
+import com.jam2in.arcus.board.model.Category;
 import com.jam2in.arcus.board.model.Comment;
-import com.jam2in.arcus.board.model.PostPage;
+import com.jam2in.arcus.board.model.Pagination;
+import com.jam2in.arcus.board.model.Post;
 import com.jam2in.arcus.board.service.BoardService;
 import com.jam2in.arcus.board.service.CommentService;
 import com.jam2in.arcus.board.service.PostService;
@@ -20,11 +23,11 @@ import com.jam2in.arcus.board.service.TestService;
 @Controller
 public class TestController {
 	@Autowired
+	BoardService boardService;
+	@Autowired
 	PostService postService;
 	@Autowired
 	CommentService commentService;
-	@Autowired
-	BoardService boardService;
 	@Autowired
 	TestService testService;
 
@@ -32,34 +35,29 @@ public class TestController {
 	public String resetData(Model model) throws SQLException {
 		testService.resetData();
 
-		BoardPage homePage = boardService.homePage(0,0,0);
-
-		model.addAttribute("noticeList", homePage.getNoticeList());
-		model.addAttribute("boardList", homePage.getBoardList());
-		model.addAttribute("boardCategory", homePage.getBoardCategory());
-		model.addAttribute("bestLikes", homePage.getBestLikes());
-		model.addAttribute("bestViews", homePage.getBestViews());
-		model.addAttribute("bestBoard", homePage.getBestBoard());
-
-		model.addAttribute("likesPeriod", 0);
-		model.addAttribute("viewsPeriod", 0);
-		model.addAttribute("boardPeriod", 0);
-
 		return "home";
 	}
 
 	@RequestMapping(path = "/test/post")
-	public String detailPost(@RequestParam("bid") int bid, @RequestParam(defaultValue = "1") int groupIndex, @RequestParam(defaultValue = "1") int pageIndex, @ModelAttribute Comment comment, Model model) {
+	public String postDetail(@RequestParam("bid") int bid, @RequestParam(defaultValue = "1") int groupIndex, @RequestParam(defaultValue = "1") int pageIndex, @ModelAttribute Comment comment, Model model) {
 		int pid = testService.selectLatestRandom(bid);
-		PostPage postPage = postService.detailPost(pid, groupIndex, pageIndex);
+		Post post = postService.detailPost(pid);
+		Board board = boardService.selectOneBoard(bid);
+		List<Board> boardList = boardService.selectAllBoard();
+		List<Category> boardCategory = boardService.boardCategoryAll();
 
-		model.addAttribute("post", postPage.getPost());
-		model.addAttribute("board", postPage.getBoard());
-		model.addAttribute("boardList", postPage.getBoardList());
-		model.addAttribute("boardCategory", postPage.getBoardCategory());
+		Pagination pagination = Pagination.builder().groupSize(5).pageSize(10).build();
+		pagination.pageInfo(groupIndex, pageIndex, post.getCmtCnt());
 
-		model.addAttribute("pagination", postPage.getPagination());
-		model.addAttribute("cmtList", postPage.getCmtList());
+		List<Comment> cmtList = commentService.selectAllCmt(pid, pagination.getStartList()-1, pagination.getPageSize());
+
+		model.addAttribute("post", post);
+		model.addAttribute("board", board);
+		model.addAttribute("boardList", boardList);
+		model.addAttribute("boardCategory", boardCategory);
+
+		model.addAttribute("cmtList", cmtList);
+		model.addAttribute("pagination", pagination);
 
 		return "post/detail";
 	}
