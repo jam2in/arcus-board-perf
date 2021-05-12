@@ -2,23 +2,35 @@ package com.jam2in.arcus.board.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import net.spy.memcached.ArcusClientPool;
+
+import com.jam2in.arcus.board.configuration.ArcusConfiguration;
 import com.jam2in.arcus.board.model.BestPost;
 import com.jam2in.arcus.board.model.Post;
 import com.jam2in.arcus.board.repository.LeaderBoardRepository;
 import com.jam2in.arcus.board.repository.PostRepository;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class LeaderBoardService {
 	@Autowired
 	private LeaderBoardRepository leaderBoardRepository;
 	@Autowired
 	private PostRepository postRepository;
+
+	ApplicationContext context = new AnnotationConfigApplicationContext(ArcusConfiguration.class);
+	ArcusClientPool arcusClient = context.getBean("arcusClient", ArcusClientPool.class);
 
 	@Transactional
 	@Scheduled(fixedDelay = 600000)
@@ -132,11 +144,53 @@ public class LeaderBoardService {
 	}
 
 	public List<Post> bestLikesAll(int period) {
-		return leaderBoardRepository.bestLikesAll(period);
+		List<Post> bestLikes = null;
+		if (period==0) {
+			Future<Object> future = arcusClient.asyncGet("BestLikesToday");
+			try {
+				bestLikes = (List<Post>) future.get(700L, TimeUnit.MILLISECONDS);
+				log.info("[ARCUS] GET : BestLikesToday");
+			} catch (Exception e) {
+				future.cancel(true);
+				e.printStackTrace();
+			}
+
+			if (bestLikes == null) {
+				bestLikes = leaderBoardRepository.bestLikesAll(period);
+				arcusClient.set("BestLikesToday", 600, bestLikes);
+				log.info("[ARCUS] SET : BestLikesToday");
+			}
+		}
+		else {
+			bestLikes = leaderBoardRepository.bestLikesAll(period);
+		}
+
+		return bestLikes;
 	}
 
 	public List<Post> bestViewsAll(int period) {
-		return leaderBoardRepository.bestViewsAll(period);
+		List<Post> bestViews = null;
+		if (period==0) {
+			Future<Object> future = arcusClient.asyncGet("BestViewsToday");
+			try {
+				bestViews = (List<Post>) future.get(700L, TimeUnit.MILLISECONDS);
+				log.info("[ARCUS] GET : BestViewsToday");
+			} catch (Exception e) {
+				future.cancel(true);
+				e.printStackTrace();
+			}
+
+			if (bestViews == null) {
+				bestViews = leaderBoardRepository.bestViewsAll(period);
+				arcusClient.set("BestViewsToday", 600, bestViews);
+				log.info("[ARCUS] SET : BestViewsToday");
+			}
+		}
+		else {
+			bestViews = leaderBoardRepository.bestViewsAll(period);
+		}
+
+		return bestViews;
 	}
 
 	public List<Post> bestLikesBoard(int bid, int period) {

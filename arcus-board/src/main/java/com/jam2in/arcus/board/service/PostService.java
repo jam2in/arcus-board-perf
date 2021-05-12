@@ -1,23 +1,35 @@
 package com.jam2in.arcus.board.service;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import com.jam2in.arcus.board.configuration.ArcusConfiguration;
 import com.jam2in.arcus.board.model.Category;
 import com.jam2in.arcus.board.model.Pagination;
 import com.jam2in.arcus.board.model.Post;
 import com.jam2in.arcus.board.repository.BoardRepository;
 import com.jam2in.arcus.board.repository.PostRepository;
+import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
+import net.spy.memcached.ArcusClientPool;
+
+@Slf4j
 @Service
 public class PostService {
     @Autowired
     private PostRepository postRepository;
     @Autowired
     private BoardRepository boardRepository;
+
+    ApplicationContext context = new AnnotationConfigApplicationContext(ArcusConfiguration.class);
+    ArcusClientPool arcusClient = context.getBean("arcusClient", ArcusClientPool.class);
 
     @Transactional
     public void insertPost(Post post) {
@@ -74,7 +86,29 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public List<Post> selectLatestNotice(int bid) {
-        return postRepository.selectLatestNotice(bid);
+        List<Post> latestNotice = null;
+
+        if (bid==1) {
+            Future<Object> future = arcusClient.asyncGet("LatestNotice");
+            try {
+                latestNotice = (List<Post>) future.get(700L, TimeUnit.MILLISECONDS);
+                log.info("[ARCUS] GET : LatestNotice");
+            } catch (Exception e) {
+                future.cancel(true);
+                e.printStackTrace();
+            }
+
+            if (latestNotice == null) {
+                latestNotice = postRepository.selectLatestNotice(bid);
+                arcusClient.set("LatestNotice", 3600, latestNotice);
+                log.info("[ARCUS] SET : LatestNotice");
+            }
+        }
+        else {
+            latestNotice = postRepository.selectLatestNotice(bid);
+        }
+
+        return latestNotice;
     }
 
     public int countPost(int bid) {
