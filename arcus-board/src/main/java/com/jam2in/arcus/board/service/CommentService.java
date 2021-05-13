@@ -11,7 +11,6 @@ import com.jam2in.arcus.board.repository.BoardRepository;
 import com.jam2in.arcus.board.repository.CommentRepository;
 import com.jam2in.arcus.board.repository.PostRepository;
 
-
 @Service
 public class CommentService {
     @Autowired
@@ -22,6 +21,7 @@ public class CommentService {
     private BoardRepository boardRepository;
 
     @Transactional
+    // TODO: 캐시 반영
     public void insertCmt(Comment comment) {
         int bid = postRepository.selectOne(comment.getPid()).getBid();
         boardRepository.increaseReqRecent(bid);
@@ -31,6 +31,7 @@ public class CommentService {
     }
 
     @Transactional
+    // TODO: 캐시 반영
     public void updateCmt(Comment comment) {
         int bid = postRepository.selectOne(comment.getPid()).getBid();
         boardRepository.increaseReqRecent(bid);
@@ -39,6 +40,7 @@ public class CommentService {
     }
 
     @Transactional
+    // TODO: 캐시 반영
     public int deleteCmt(int cid) {
         int pid = commentRepository.selectOne(cid).getPid();
         int bid = postRepository.selectOne(pid).getBid();
@@ -50,14 +52,19 @@ public class CommentService {
         return pid;
     }
 
-
     public Comment selectOneCmt(int cid) {
         return commentRepository.selectOne(cid);
     }
 
-
     public List<Comment> selectAllCmt(int pid, int startList, int pageSize) {
-        return commentRepository.selectAll(pid, startList, pageSize);
+        List<Comment> cmtList = null;
+        if (startList < pageSize*5) {
+            // TODO: 캐싱
+        }
+        else {
+            cmtList = commentRepository.selectAll(pid, startList, pageSize);
+        }
+        return cmtList;
     }
 
 }
