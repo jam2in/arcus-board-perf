@@ -7,9 +7,11 @@ import com.jam2in.arcus.board.repository.BoardRepository;
 import com.jam2in.arcus.board.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Transactional
 @Service
 public class PostService {
     @Autowired
@@ -48,6 +50,7 @@ public class PostService {
         return post;
     }
 
+    @Transactional(readOnly = true)
     public Post selectOnePost(int pid) {
         return postRepository.selectOne(pid);
     }
@@ -64,14 +67,17 @@ public class PostService {
         return postRepository.selectCategory(bid, category, pagination.getStartList()-1, pagination.getPageSize());
     }
 
+    @Transactional(readOnly = true)
     public List<Post> selectLatestNotice(int bid) {
         return postRepository.selectLatestNotice(bid);
     }
 
+    @Transactional(readOnly = true)
     public int countPost(int bid) {
         return postRepository.countPost(bid);
     }
 
+    @Transactional(readOnly = true)
     public int countPostCategory(int bid, int category) {
         return postRepository.countPostCategory(bid, category);
     }
@@ -80,6 +86,7 @@ public class PostService {
         postRepository.likePost(id);
     }
 
+    @Transactional(readOnly = true)
     public List<Category> postCategoryAll(){
         return postRepository.postCategoryAll();
     }

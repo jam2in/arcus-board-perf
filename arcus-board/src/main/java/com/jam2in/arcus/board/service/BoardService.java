@@ -6,6 +6,8 @@ import com.jam2in.arcus.board.repository.BoardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 @Service
@@ -31,6 +33,7 @@ public class BoardService {
         throw new IllegalArgumentException("Illegal Best Board Period");
     }
 
+    @Transactional
     @Scheduled(cron = "0 0 0 * * *")
     public void resetReq() {
         boardRepository.resetReqRecent();

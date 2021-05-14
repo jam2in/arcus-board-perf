@@ -18,8 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.jam2in.arcus.board.model.Post;
 import com.jam2in.arcus.board.repository.PostRepository;
 
 @Service
@@ -35,13 +35,19 @@ public class TestService {
 	private String password;
 
 	public int selectLatestRandom(int bid) {
-		List<Post> postList = postRepository.selectAll(bid, 0, 100);
+		List<Integer> pidList = postRepository.selectLatestPid(bid);
 		int index = (int)(Math.random() * 100);
-		return postList.get(index).getPid();
+		return pidList.get(index);
 	}
 
-	public void resetData() throws SQLException {
-		Connection connection = DriverManager.getConnection(url, user, password);
+	@Transactional
+	public void resetData() {
+		Connection connection = null;
+		try {
+			connection = DriverManager.getConnection(url, user, password);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		try {
 			ScriptRunner sr = new ScriptRunner(connection);
 			ClassPathResource resource = new ClassPathResource("resetTestData.sql");

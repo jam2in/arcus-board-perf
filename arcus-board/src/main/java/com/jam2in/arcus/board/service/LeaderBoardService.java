@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.jam2in.arcus.board.model.BestPost;
 import com.jam2in.arcus.board.model.Post;
@@ -19,6 +20,7 @@ public class LeaderBoardService {
 	@Autowired
 	private PostRepository postRepository;
 
+	@Transactional
 	@Scheduled(cron = "0 0/10 * * * *")
 	public void resetLeaderBoard() {
 		leaderBoardRepository.deleteBestLikesAll();

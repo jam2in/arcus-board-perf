@@ -7,9 +7,11 @@ import com.jam2in.arcus.board.repository.PostRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Transactional
 @Service
 public class CommentService {
     @Autowired
@@ -45,10 +47,12 @@ public class CommentService {
         return pid;
     }
 
+    @Transactional(readOnly = true)
     public Comment selectOneCmt(int cid) {
         return commentRepository.selectOne(cid);
     }
 
+    @Transactional(readOnly = true)
     public List<Comment> selectAllCmt(int pid, int startList, int pageSize) {
         return commentRepository.selectAll(pid, startList, pageSize);
     }

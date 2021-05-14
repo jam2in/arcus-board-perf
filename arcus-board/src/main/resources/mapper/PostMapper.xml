@@ -63,6 +63,13 @@
         INNER JOIN category_post c ON p.category = c.id
         ORDER BY pid DESC
     </select>
+
+    <select id="selectLatestPid" resultType="java.lang.Integer">
+        SELECT pid FROM post
+        USE INDEX(idx_post)
+        WHERE bid = #{bid}
+        ORDER BY pid DESC LIMIT 0,100
+    </select>
     
     <select id="bestLikesAll" resultType="java.lang.Integer">
         SELECT pid FROM post
