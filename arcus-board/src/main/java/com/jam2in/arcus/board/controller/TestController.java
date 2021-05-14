@@ -9,6 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.jam2in.arcus.board.model.Board;
 import com.jam2in.arcus.board.model.Category;
@@ -83,6 +84,17 @@ public class TestController {
 		postService.likePost(pid);
 
 		return "redirect:/post/detail?pid="+pid;
+	}
+
+	@RequestMapping(path = "/test1")
+	public String test1() {
+		return "home";
+	}
+
+	@RequestMapping(path = "/test2")
+	@ResponseBody
+	public String test2() {
+		return "";
 	}
 
 }
