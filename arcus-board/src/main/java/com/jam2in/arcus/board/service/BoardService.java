@@ -15,6 +15,7 @@ public class BoardService {
     @Autowired
     private BoardRepository boardRepository;
 
+    @Transactional(readOnly = true)
     public Board selectOneBoard(int id) {
         return boardRepository.selectOne(id);
     }

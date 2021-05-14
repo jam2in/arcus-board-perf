@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Transactional
 @Service
 public class PostService {
     @Autowired
@@ -19,6 +18,7 @@ public class PostService {
     @Autowired
     private BoardRepository boardRepository;
 
+    @Transactional
     public void insertPost(Post post) {
         postRepository.insert(post);
         int bid = post.getBid();
@@ -26,6 +26,7 @@ public class PostService {
         boardRepository.increaseReqToday(bid);
     }
 
+    @Transactional
     public void updatePost(Post post) {
         postRepository.update(post);
         int bid = post.getBid();
@@ -33,6 +34,7 @@ public class PostService {
         boardRepository.increaseReqToday(bid);
     }
 
+    @Transactional
     public int deletePost(int pid) {
         int bid = postRepository.selectOne(pid).getBid();
         postRepository.delete(pid);
@@ -42,6 +44,7 @@ public class PostService {
         return bid;
     }
 
+    @Transactional
     public Post detailPost(int pid) {
         postRepository.increaseViews(pid);
         Post post = postRepository.selectOne(pid);
@@ -50,17 +53,18 @@ public class PostService {
         return post;
     }
 
-    @Transactional(readOnly = true)
     public Post selectOnePost(int pid) {
         return postRepository.selectOne(pid);
     }
 
+    @Transactional
     public List<Post> postList(int bid, Pagination pagination) {
         boardRepository.increaseReqRecent(bid);
         boardRepository.increaseReqToday(bid);
         return postRepository.selectAll(bid, pagination.getStartList()-1, pagination.getPageSize());
     }
 
+    @Transactional
     public List<Post> postCategoryList(int bid, int category, Pagination pagination) {
         boardRepository.increaseReqRecent(bid);
         boardRepository.increaseReqToday(bid);
@@ -72,12 +76,10 @@ public class PostService {
         return postRepository.selectLatestNotice(bid);
     }
 
-    @Transactional(readOnly = true)
     public int countPost(int bid) {
         return postRepository.countPost(bid);
     }
 
-    @Transactional(readOnly = true)
     public int countPostCategory(int bid, int category) {
         return postRepository.countPostCategory(bid, category);
     }
@@ -86,7 +88,6 @@ public class PostService {
         postRepository.likePost(id);
     }
 
-    @Transactional(readOnly = true)
     public List<Category> postCategoryAll(){
         return postRepository.postCategoryAll();
     }

@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Transactional
+
 @Service
 public class CommentService {
     @Autowired
@@ -21,6 +21,7 @@ public class CommentService {
     @Autowired
     private BoardRepository boardRepository;
 
+    @Transactional
     public void insertCmt(Comment comment) {
         commentRepository.insert(comment);
         postRepository.increaseCmt(comment.getPid());
@@ -29,6 +30,7 @@ public class CommentService {
         boardRepository.increaseReqToday(bid);
     }
 
+    @Transactional
     public void updateCmt(Comment comment) {
         commentRepository.update(comment);
         int bid = postRepository.selectOne(comment.getPid()).getBid();
@@ -36,6 +38,7 @@ public class CommentService {
         boardRepository.increaseReqToday(bid);
     }
 
+    @Transactional
     public int deleteCmt(int cid) {
         int pid = commentRepository.selectOne(cid).getPid();
         int bid = postRepository.selectOne(pid).getBid();
@@ -47,12 +50,12 @@ public class CommentService {
         return pid;
     }
 
-    @Transactional(readOnly = true)
+
     public Comment selectOneCmt(int cid) {
         return commentRepository.selectOne(cid);
     }
 
-    @Transactional(readOnly = true)
+
     public List<Comment> selectAllCmt(int pid, int startList, int pageSize) {
         return commentRepository.selectAll(pid, startList, pageSize);
     }
