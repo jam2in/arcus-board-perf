@@ -5,9 +5,12 @@
 
 <mapper namespace="com.jam2in.arcus.board.repository.CommentRepository">
 
-    <insert id="insert">
+    <insert id="insert" parameterType="com.jam2in.arcus.board.model.Comment">
         INSERT INTO comment(uid, pid, content)
         VALUES (#{uid}, #{pid}, #{content})
+        <selectKey resultType="java.lang.Integer" keyProperty="cid">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
     </insert>
 
     <update id="update">

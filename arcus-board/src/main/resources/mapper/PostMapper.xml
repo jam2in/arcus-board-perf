@@ -4,9 +4,12 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.jam2in.arcus.board.repository.PostRepository">
-    <insert id="insert">
+    <insert id="insert" parameterType="com.jam2in.arcus.board.model.Post">
         INSERT INTO post(uid, bid, category, title, content)
         VALUES (#{uid}, #{bid}, #{category}, #{title}, #{content})
+        <selectKey resultType="java.lang.Integer" keyProperty="pid">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
     </insert>
 
     <update id="update">
