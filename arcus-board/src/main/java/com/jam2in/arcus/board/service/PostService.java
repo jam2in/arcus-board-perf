@@ -20,10 +20,10 @@ public class PostService {
 
     @Transactional
     public void insertPost(Post post) {
-        postRepository.insert(post);
         int bid = post.getBid();
         boardRepository.increaseReqRecent(bid);
         boardRepository.increaseReqToday(bid);
+        postRepository.insert(post);
     }
 
     @Transactional
