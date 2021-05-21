@@ -69,7 +69,7 @@ public class CommentController {
         pagination.pageInfo(groupIndex, pageIndex, post.getCmtCnt());
 
         List<Comment> cmtList = commentService.selectAllCmt(pid, pagination.getStartList()-1, pagination.getPageSize());
-        Comment comment = commentService.selectOneCmt(cid);
+        Comment comment = commentService.selectOneCmt(pid, cid);
 
         model.addAttribute("post", post);
         model.addAttribute("board", board);

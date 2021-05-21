@@ -1,15 +1,16 @@
 package com.jam2in.arcus.board.service;
 
-import java.util.List;
+import com.jam2in.arcus.board.Arcus.CommentArcus;
+import com.jam2in.arcus.board.model.Comment;
+import com.jam2in.arcus.board.repository.BoardRepository;
+import com.jam2in.arcus.board.repository.CommentRepository;
+import com.jam2in.arcus.board.repository.PostRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.jam2in.arcus.board.model.Comment;
-import com.jam2in.arcus.board.repository.BoardRepository;
-import com.jam2in.arcus.board.repository.CommentRepository;
-import com.jam2in.arcus.board.repository.PostRepository;
+import java.util.List;
 
 @Service
 public class CommentService {
@@ -19,28 +20,29 @@ public class CommentService {
     private PostRepository postRepository;
     @Autowired
     private BoardRepository boardRepository;
+    @Autowired
+    CommentArcus commentArcus;
 
     @Transactional
-    // TODO: 캐시 반영
     public void insertCmt(Comment comment) {
         int bid = postRepository.selectOne(comment.getPid()).getBid();
         boardRepository.increaseReqRecent(bid);
         boardRepository.increaseReqToday(bid);
         postRepository.increaseCmt(comment.getPid());
         commentRepository.insert(comment);
+        commentArcus.insertComment(comment.getCid());
     }
 
     @Transactional
-    // TODO: 캐시 반영
     public void updateCmt(Comment comment) {
         int bid = postRepository.selectOne(comment.getPid()).getBid();
         boardRepository.increaseReqRecent(bid);
         boardRepository.increaseReqToday(bid);
         commentRepository.update(comment);
+        commentArcus.updateComment(comment);
     }
 
     @Transactional
-    // TODO: 캐시 반영
     public int deleteCmt(int cid) {
         int pid = commentRepository.selectOne(cid).getPid();
         int bid = postRepository.selectOne(pid).getBid();
@@ -48,23 +50,17 @@ public class CommentService {
         boardRepository.increaseReqToday(bid);
         postRepository.decreaseCmt(pid);
         commentRepository.delete(cid);
+        commentArcus.deleteComment(pid, cid);
 
         return pid;
     }
 
-    public Comment selectOneCmt(int cid) {
-        return commentRepository.selectOne(cid);
+    public Comment selectOneCmt(int pid, int cid) {
+        return commentArcus.getComment(pid, cid);
     }
 
     public List<Comment> selectAllCmt(int pid, int startList, int pageSize) {
-        List<Comment> cmtList = null;
-        if (startList < pageSize*5) {
-            // TODO: 캐싱
-        }
-        else {
-            cmtList = commentRepository.selectAll(pid, startList, pageSize);
-        }
-        return cmtList;
+        return commentArcus.getCommentList(pid, startList, pageSize);
     }
 
 }
