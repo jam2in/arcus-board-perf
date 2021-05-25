@@ -21,7 +21,7 @@ public class LeaderBoardService {
 	private PostRepository postRepository;
 
 	@Transactional
-	@Scheduled(cron = "0 0/10 * * * *")
+	@Scheduled(fixedDelay = 600000)
 	public void resetLeaderBoard() {
 		leaderBoardRepository.deleteBestLikesAll();
 		leaderBoardRepository.deleteBestLikesBoard();
