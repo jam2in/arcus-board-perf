@@ -42,7 +42,7 @@ public class TestController {
 	@RequestMapping(path = "/test/post")
 	public String postDetail(@RequestParam("bid") int bid, @RequestParam(defaultValue = "1") int groupIndex, @RequestParam(defaultValue = "1") int pageIndex, @ModelAttribute Comment comment, Model model) {
 		int pid = testService.selectLatestRandom(bid);
-		Post post = postService.detailPost(pid);
+		Post post = postService.detailPost(bid, pid);
 		Board board = boardService.selectOneBoard(bid);
 		List<Board> boardList = boardService.selectAllBoard();
 		List<Category> boardCategory = boardService.boardCategoryAll();

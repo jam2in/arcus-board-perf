@@ -60,7 +60,7 @@ public class CommentController {
 
     @RequestMapping(path = "/comment/edit")
     public String editCmt(@RequestParam("bid") int bid, @RequestParam("pid") int pid, @RequestParam("cid") int cid, @RequestParam(defaultValue = "1") int groupIndex, @RequestParam(defaultValue = "1") int pageIndex, Model model) {
-        Post post = postService.selectOnePost(pid);
+        Post post = postService.selectOnePost(bid, pid);
         Board board = boardService.selectOneBoard(bid);
         List<Board> boardList = boardService.selectAllBoard();
         List<Category> boardCategory = boardService.boardCategoryAll();

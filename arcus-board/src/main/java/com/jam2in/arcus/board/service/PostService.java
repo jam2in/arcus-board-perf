@@ -64,17 +64,17 @@ public class PostService {
     }
 
     @Transactional
-    public Post detailPost(int pid) {
-        Post post = postRepository.selectOne(pid);
+    public Post detailPost(int bid, int pid) {
+        Post post = postArcus.getPost(bid, pid);
         boardRepository.increaseReqRecent(post.getBid());
         boardRepository.increaseReqToday(post.getBid());
         postRepository.increaseViews(pid);
-        postArcus.increaseViews(post.getBid(), pid);
+        postArcus.increaseViews(bid, pid);
         return post;
     }
 
-    public Post selectOnePost(int pid) {
-        return postRepository.selectOne(pid);
+    public Post selectOnePost(int bid, int pid) {
+        return postArcus.getPost(bid, pid);
     }
 
     @Transactional

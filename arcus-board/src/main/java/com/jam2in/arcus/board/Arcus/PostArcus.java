@@ -322,4 +322,61 @@ public class PostArcus {
 		}
 	}
 
+	public Post getPost(int bid, int pid) {
+		Post post = new Post();
+
+		CollectionFuture<Map<Long, Element<Object>>> postListFuture
+			= arcusClient.asyncBopGet("PostList:"+bid, pid, ElementFlagFilter.DO_NOT_FILTER, false, false);
+		CollectionFuture<Map<Long, Element<Object>>> viewsFuture
+			= arcusClient.asyncBopGet("PostViews:"+bid, pid, ElementFlagFilter.DO_NOT_FILTER, false, false);
+		CollectionFuture<Map<Long, Element<Object>>> likesFuture
+			= arcusClient.asyncBopGet("PostLikes:"+bid, pid, ElementFlagFilter.DO_NOT_FILTER, false, false);
+		CollectionFuture<Map<Long, Element<Object>>> commentCountFuture
+			= arcusClient.asyncBopGet("PostCmtCnt:"+bid, pid, ElementFlagFilter.DO_NOT_FILTER, false, false);
+
+		try {
+			Map<Long, Element<Object>> result = postListFuture.get(1000L, TimeUnit.MILLISECONDS);
+			if (result==null) {
+				return postRepository.selectOne(pid);
+			}
+			post = (Post) result.get((long)pid).getValue();
+		} catch (Exception e) {
+			postListFuture.cancel(true);
+			e.printStackTrace();
+		}
+		try {
+			Map<Long, Element<Object>> result = viewsFuture.get(1000L, TimeUnit.MILLISECONDS);
+			if (result==null) {
+				return postRepository.selectOne(pid);
+			}
+			post.setViews(Integer.parseInt((String)result.get((long)pid).getValue()));
+		} catch (Exception e) {
+			viewsFuture.cancel(true);
+			e.printStackTrace();
+		}
+		try {
+			Map<Long, Element<Object>> result = likesFuture.get(1000L, TimeUnit.MILLISECONDS);
+			if (result==null) {
+				return postRepository.selectOne(pid);
+			}
+			post.setLikes(Integer.parseInt((String)result.get((long)pid).getValue()));
+		} catch (Exception e) {
+			likesFuture.cancel(true);
+			e.printStackTrace();
+		}
+		try {
+			Map<Long, Element<Object>> result = commentCountFuture.get(1000L, TimeUnit.MILLISECONDS);
+			if (result==null) {
+				return postRepository.selectOne(pid);
+			}
+			post.setCmtCnt(Integer.parseInt((String)result.get((long)pid).getValue()));
+		} catch (Exception e) {
+			commentCountFuture.cancel(true);
+			e.printStackTrace();
+		}
+		log.info("[ARCUS] GET : Post:"+pid);
+
+		return post;
+	}
+
 }
