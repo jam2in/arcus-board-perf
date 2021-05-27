@@ -50,11 +50,11 @@
         <input type="text" class="form-control" style="height:300px" th:value="${post.content}" id="content" disabled >
         <br/>
         <a role="button" class="btn btn-dark float-right mr-1" th:href="@{'/board?bid='+${post.bid}}">목록</a>
-        <a role="button" class="btn btn-success float-right mr-3" th:href="@{'/post/edit?pid='+${post.pid}}">수정</a>
+        <a role="button" class="btn btn-success float-right mr-3" th:href="@{'/post/edit?bid='+${post.bid}+'&pid='+${post.pid}}">수정</a>
 
     </div>
 
-    <a role="button" class="btn btn-info likeBtn ml-3" id="btnLike" th:href="@{'/post/like?pid='+${post.pid}}" th:text="'추천  '+${post.likes}"></a>
+    <a role="button" class="btn btn-info likeBtn ml-3" id="btnLike" th:href="@{'/post/like?bid='+${post.bid}+'&pid='+${post.pid}}" th:text="'추천  '+${post.likes}"></a>
 
     <th:block th:replace="comment.html :: cmtFragment"></th:block>
 

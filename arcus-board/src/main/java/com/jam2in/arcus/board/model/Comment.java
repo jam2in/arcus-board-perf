@@ -13,6 +13,7 @@ public class Comment {
     private int uid;
     private String userName;
     private int pid;
+    private int bid;
     private String content;
     private Timestamp createdDate;
     private Timestamp updatedDate;

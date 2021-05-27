@@ -1,5 +1,14 @@
 package com.jam2in.arcus.board.controller;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import com.jam2in.arcus.board.model.Board;
 import com.jam2in.arcus.board.model.Category;
 import com.jam2in.arcus.board.model.Comment;
@@ -8,12 +17,6 @@ import com.jam2in.arcus.board.model.Post;
 import com.jam2in.arcus.board.service.BoardService;
 import com.jam2in.arcus.board.service.CommentService;
 import com.jam2in.arcus.board.service.PostService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Controller
 public class PostController {
@@ -52,9 +55,9 @@ public class PostController {
     }
 
     @RequestMapping(path = "/post/detail", params = {"pid"})
-    public String detailPost(@RequestParam("pid") int pid, @RequestParam(defaultValue = "1") int groupIndex, @RequestParam(defaultValue = "1") int pageIndex, @ModelAttribute Comment comment, Model model) {
+    public String detailPost(@RequestParam("bid") int bid, @RequestParam("pid") int pid, @RequestParam(defaultValue = "1") int groupIndex, @RequestParam(defaultValue = "1") int pageIndex, @ModelAttribute Comment comment, Model model) {
         Post post = postService.detailPost(pid);
-        Board board = boardService.selectOneBoard(post.getBid());
+        Board board = boardService.selectOneBoard(bid);
         List<Board> boardList = boardService.selectAllBoard();
         List<Category> boardCategory = boardService.boardCategoryAll();
 
@@ -71,7 +74,7 @@ public class PostController {
         model.addAttribute("cmtList", cmtList);
         model.addAttribute("pagination", pagination);
 
-        if (post.getBid() == 1) {
+        if (bid == 1) {
             return "notice/detail";
         }
         else {
@@ -81,9 +84,9 @@ public class PostController {
 
 
     @RequestMapping(path = "/post/edit")
-    public String editPost(@RequestParam("pid") int pid, Model model) {
+    public String editPost(@RequestParam("bid") int bid, @RequestParam("pid") int pid, Model model) {
         Post post = postService.selectOnePost(pid);
-        Board board = boardService.selectOneBoard(post.getBid());
+        Board board = boardService.selectOneBoard(bid);
         List<Board> boardList = boardService.selectAllBoard();
         List<Category> boardCategory = boardService.boardCategoryAll();
         List<Category> postCategory = postService.postCategoryAll();
@@ -94,7 +97,7 @@ public class PostController {
         model.addAttribute("boardCategory", boardCategory);
         model.addAttribute("postCategory", postCategory);
 
-        if (post.getBid() == 1) {
+        if (bid == 1) {
             return "notice/edit";
         }
         else {
@@ -106,7 +109,7 @@ public class PostController {
     public String updatePost(@ModelAttribute Post post) {
         postService.updatePost(post);
 
-        return "redirect:/post/detail?pid="+post.getPid();
+        return "redirect:/post/detail?bid="+post.getBid()+"&pid="+post.getPid();
     }
 
     @RequestMapping(path = "/post/delete")
@@ -118,10 +121,10 @@ public class PostController {
 
 
     @RequestMapping(path = "/post/like")
-    public String likePost(@RequestParam("pid") int pid) {
+    public String likePost(@RequestParam("bid") int bid, @RequestParam("pid") int pid) {
         postService.likePost(pid);
 
-        return "redirect:/post/detail?pid="+pid;
+        return "redirect:/post/detail?bid="+bid+"&pid="+pid;
     }
 
 /*

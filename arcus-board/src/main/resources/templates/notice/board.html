@@ -56,7 +56,7 @@
             <div class="row">
                 <tr th:each="post, i: ${bestLikes}">
                     <span class="ml-4 mt-2 mb-2 text-white" th:text="${i.index+1}+'. '"></span>
-                    <td><a class="ml-2 mt-2 mb-2 text-white" th:text="${post.title}" th:href="@{'/post/detail?pid='+${post.pid}}"></a><td>
+                    <td><a class="ml-2 mt-2 mb-2 text-white" th:text="${post.title}" th:href="@{'/post/detail?bid=1&pid='+${post.pid}}"></a><td>
                     <div class="w-100"></div>
                 </tr>
             </div>
@@ -103,7 +103,7 @@
             <div class="row">
                 <tr th:each="post, i: ${bestViews}">
                     <span class="ml-4 mt-2 mb-2 text-white" th:text="${i.index+1}+'. '"></span>
-                    <td><a class="ml-2 mt-2 mb-2 text-white" th:text="${post.title}" th:href="@{'/post/detail?pid='+${post.pid}}"></a><td>
+                    <td><a class="ml-2 mt-2 mb-2 text-white" th:text="${post.title}" th:href="@{'/post/detail?bid=1&pid='+${post.pid}}"></a><td>
                     <div class="w-100"></div>
                 </tr>
             </div>
@@ -129,7 +129,7 @@
         <tr th:each="post: ${postList}">
             <td th:text="${post.likes}"><td>
             <td th:text="${post.categoryName}"></td>
-            <td><a class="text-dark" th:text="${post.title}+'  ['+${post.cmtCnt}+']'" th:href="@{'/post/detail?pid='+${post.pid}}"></a><td>
+            <td><a class="text-dark" th:text="${post.title}+'  ['+${post.cmtCnt}+']'" th:href="@{'/post/detail?bid=1&pid='+${post.pid}}"></a><td>
             <td th:text="${post.userName}"></td>
             <td th:text="${post.views}"></td>
             <td th:text="${#dates.format(post.createdDate, 'yyyy-MM-dd')}"></td>

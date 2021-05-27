@@ -75,7 +75,7 @@ public class TestController {
 
 		commentService.insertCmt(comment);
 
-		return "redirect:/post/detail?pid="+pid;
+		return "redirect:/post/detail?bid="+bid+"&pid="+pid;
 	}
 
 	@RequestMapping(path = "/test/post/like")
@@ -83,7 +83,7 @@ public class TestController {
 		int pid = testService.selectLatestRandom(bid);
 		postService.likePost(pid);
 
-		return "redirect:/post/detail?pid="+pid;
+		return "redirect:/post/detail?bid="+bid+"&pid="+pid;
 	}
 
 	@RequestMapping(path = "/test1")

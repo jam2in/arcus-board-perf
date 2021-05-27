@@ -2,6 +2,13 @@ package com.jam2in.arcus.board.controller;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import com.jam2in.arcus.board.model.Board;
 import com.jam2in.arcus.board.model.Category;
 import com.jam2in.arcus.board.model.Comment;
@@ -10,10 +17,6 @@ import com.jam2in.arcus.board.model.Post;
 import com.jam2in.arcus.board.service.BoardService;
 import com.jam2in.arcus.board.service.CommentService;
 import com.jam2in.arcus.board.service.PostService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
 
 
 @Controller
@@ -52,13 +55,13 @@ public class CommentController {
     public String insertCmt(@ModelAttribute Comment comment) {
         commentService.insertCmt(comment);
 
-        return "redirect:/post/detail?pid="+comment.getPid();
+        return "redirect:/post/detail?bid="+comment.getBid()+"&pid="+comment.getPid();
     }
 
     @RequestMapping(path = "/comment/edit")
-    public String editCmt(@RequestParam("pid") int pid, @RequestParam("cid") int cid, @RequestParam(defaultValue = "1") int groupIndex, @RequestParam(defaultValue = "1") int pageIndex, Model model) {
+    public String editCmt(@RequestParam("bid") int bid, @RequestParam("pid") int pid, @RequestParam("cid") int cid, @RequestParam(defaultValue = "1") int groupIndex, @RequestParam(defaultValue = "1") int pageIndex, Model model) {
         Post post = postService.selectOnePost(pid);
-        Board board = boardService.selectOneBoard(post.getBid());
+        Board board = boardService.selectOneBoard(bid);
         List<Board> boardList = boardService.selectAllBoard();
         List<Category> boardCategory = boardService.boardCategoryAll();
 
@@ -78,7 +81,7 @@ public class CommentController {
         model.addAttribute("cid", cid);
         model.addAttribute("comment", comment);
 
-        if (post.getBid() == 1) {
+        if (bid == 1) {
             return "notice/detail";
         }
         else {
@@ -90,13 +93,13 @@ public class CommentController {
     public String updateCmt(@ModelAttribute Comment comment) {
         commentService.updateCmt(comment);
 
-        return "redirect:/post/detail?pid="+comment.getPid();
+        return "redirect:/post/detail?bid="+comment.getBid()+"&pid="+comment.getPid();
     }
 
     @RequestMapping(path = "/comment/delete")
-    public String deleteCmt(@RequestParam("cid") int cid) {
+    public String deleteCmt(@RequestParam("bid") int bid, @RequestParam("cid") int cid) {
         int pid = commentService.deleteCmt(cid);
 
-        return "redirect:/post/detail?pid="+pid;
+        return "redirect:/post/detail?bid="+bid+"&pid="+pid;
     }
 }
