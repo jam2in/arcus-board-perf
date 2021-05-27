@@ -53,7 +53,6 @@ public class CommentArcus {
 				for (Map.Entry<Integer, Element<Object>> each : result.entrySet()) {
 					commentList.add((Comment)each.getValue().getValue());
 				}
-				log.info("[ARCUS] GET : " + key);
 			} catch (Exception e) {
 				future.cancel(true);
 				e.printStackTrace();
@@ -96,9 +95,6 @@ public class CommentArcus {
 					log.error("Caused by " + entry.getValue().getResponse());
 				}
 			}
-			else {
-				log.info("[ARCUS] SET : " + key);
-			}
 		} catch (Exception e) {
 			future.cancel(true);
 			e.printStackTrace();
@@ -115,7 +111,6 @@ public class CommentArcus {
 			future.get(1000L, TimeUnit.MILLISECONDS);
 			CollectionResponse response = future.getOperationStatus().getResponse();
 			if (response.equals(CollectionResponse.OVERFLOWED)) return;
-			log.info("[ARCUS] INSERT : " + key + ":" + comment.getCid());
 		} catch (Exception e) {
 			future.cancel(true);
 			e.printStackTrace();
@@ -131,7 +126,6 @@ public class CommentArcus {
 			future.get(1000L, TimeUnit.MILLISECONDS);
 			CollectionResponse response = future.getOperationStatus().getResponse();
 			if (response.equals(CollectionResponse.NOT_FOUND_ELEMENT)) return;
-			log.info("[ARCUS] UPDATE : " + key + ":" + comment.getCid());
 		} catch (Exception e) {
 			future.cancel(true);
 			e.printStackTrace();
@@ -146,7 +140,6 @@ public class CommentArcus {
 			future.get(1000L, TimeUnit.MILLISECONDS);
 			CollectionResponse response = future.getOperationStatus().getResponse();
 			if (response.equals(CollectionResponse.NOT_FOUND_ELEMENT)) return;
-			log.info("[ARCUS] DELETE : " + key + ":" + cid);
 		} catch (Exception e) {
 			future.cancel(true);
 			e.printStackTrace();

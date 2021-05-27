@@ -72,7 +72,6 @@ public class PostArcus {
 			for (Map.Entry<Integer, Element<Object>> each : result.entrySet()) {
 				postList.add((Post)each.getValue().getValue());
 			}
-			log.info("[ARCUS] GET : PostList");
 		} catch (Exception e) {
 			postListFuture.cancel(true);
 			e.printStackTrace();
@@ -87,7 +86,6 @@ public class PostArcus {
 			for (Map.Entry<Integer, Element<Object>> each : result.entrySet()) {
 				postList.get(i++).setViews(Integer.parseInt((String)each.getValue().getValue()));
 			}
-			log.info("[ARCUS] GET : PostViews");
 		} catch (Exception e) {
 			viewsFuture.cancel(true);
 			e.printStackTrace();
@@ -102,7 +100,6 @@ public class PostArcus {
 			for (Map.Entry<Integer, Element<Object>> each : result.entrySet()) {
 				postList.get(i++).setLikes(Integer.parseInt((String)each.getValue().getValue()));
 			}
-			log.info("[ARCUS] GET : PostLikes");
 		} catch (Exception e) {
 			likesFuture.cancel(true);
 			e.printStackTrace();
@@ -117,7 +114,6 @@ public class PostArcus {
 			for (Map.Entry<Integer, Element<Object>> each : result.entrySet()) {
 				postList.get(i++).setCmtCnt(Integer.parseInt((String)each.getValue().getValue()));
 			}
-			log.info("[ARCUS] GET : PostCmtCnt");
 		} catch (Exception e) {
 			commentCountFuture.cancel(true);
 			e.printStackTrace();
@@ -182,9 +178,6 @@ public class PostArcus {
 					log.error("Caused by " + entry.getValue().getResponse());
 				}
 			}
-			else {
-				log.info("[ARCUS] SET : " + key);
-			}
 		} catch (Exception e) {
 			future.cancel(true);
 			e.printStackTrace();
@@ -196,10 +189,7 @@ public class PostArcus {
 			Future<Boolean> future = arcusClient.delete(key);
 			try {
 				Boolean result = future.get(1000L, TimeUnit.MILLISECONDS);
-				if (result) {
-					log.info("[ARCUS] DELETE : "+ key);
-					break;
-				}
+				if (result) break;
 			} catch (Exception e) {
 				future.cancel(true);
 				e.printStackTrace();
@@ -301,7 +291,6 @@ public class PostArcus {
 			future.get(1000L, TimeUnit.MILLISECONDS);
 			CollectionResponse response = future.getOperationStatus().getResponse();
 			if (response.equals(CollectionResponse.NOT_FOUND_ELEMENT)) return;
-			log.info("[ARCUS] DELETE : " + key + ":" + bkey);
 		} catch (Exception e) {
 			future.cancel(true);
 			e.printStackTrace();
@@ -315,7 +304,6 @@ public class PostArcus {
 			future.get(1000L, TimeUnit.MILLISECONDS);
 			CollectionResponse response = future.getOperationStatus().getResponse();
 			if (response.equals(CollectionResponse.NOT_FOUND_ELEMENT)) return;
-			log.info("[ARCUS] UPDATE : " + key + ":" + post.getPid());
 		} catch (Exception e) {
 			future.cancel(true);
 			e.printStackTrace();
@@ -374,7 +362,6 @@ public class PostArcus {
 			commentCountFuture.cancel(true);
 			e.printStackTrace();
 		}
-		log.info("[ARCUS] GET : Post:"+pid);
 
 		return post;
 	}

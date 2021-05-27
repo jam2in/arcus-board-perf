@@ -38,7 +38,6 @@ public class BoardService {
         Future<Object> future = arcusClient.asyncGet("BoardList");
         try {
             boardList = (List<Board>) future.get(700L, TimeUnit.MILLISECONDS);
-            log.info("[ARCUS] GET : BoardList");
         } catch (Exception e) {
             future.cancel(true);
             e.printStackTrace();
@@ -47,7 +46,6 @@ public class BoardService {
         if (boardList == null) {
             boardList = boardRepository.selectAll();
             arcusClient.set("BoardList", 3600, boardList);
-            log.info("[ARCUS] SET : BoardList");
         }
 
         return boardList;
@@ -61,7 +59,6 @@ public class BoardService {
                 Future<Object> future = arcusClient.asyncGet("BestBoardRecent");
                 try {
                     bestBoard = (List<Board>) future.get(700L, TimeUnit.MILLISECONDS);
-                    log.info("[ARCUS] GET : BestBoardRecent");
                 } catch (Exception e) {
                     future.cancel(true);
                     e.printStackTrace();
@@ -70,7 +67,6 @@ public class BoardService {
                 if (bestBoard == null) {
                     bestBoard = boardRepository.bestBoardRecent();
                     arcusClient.set("BestBoardRecent", 600, bestBoard);
-                    log.info("[ARCUS] SET : BestBoardRecent");
                 }
                 break;
             case 1 :
@@ -93,7 +89,6 @@ public class BoardService {
         Future<Object> future = arcusClient.asyncGet("Category:Board");
         try {
             boardCategory = (List<Category>) future.get(1000L, TimeUnit.MILLISECONDS);
-            log.info("[ARCUS] GET : Category:Board");
         } catch (Exception e) {
             future.cancel(true);
             e.printStackTrace();
@@ -102,7 +97,6 @@ public class BoardService {
         if (boardCategory == null) {
             boardCategory = boardRepository.boardCategoryAll();
             arcusClient.set("Category:Board", 3600, boardCategory);
-            log.info("[ARCUS] SET : Category:Board");
         }
 
         return boardCategory;

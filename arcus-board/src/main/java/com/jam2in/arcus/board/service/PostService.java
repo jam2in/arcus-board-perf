@@ -99,7 +99,6 @@ public class PostService {
             Future<Object> future = arcusClient.asyncGet("LatestNotice");
             try {
                 latestNotice = (List<Post>) future.get(700L, TimeUnit.MILLISECONDS);
-                log.info("[ARCUS] GET : LatestNotice");
             } catch (Exception e) {
                 future.cancel(true);
                 e.printStackTrace();
@@ -108,7 +107,6 @@ public class PostService {
             if (latestNotice == null) {
                 latestNotice = postRepository.selectLatestNotice(bid);
                 arcusClient.set("LatestNotice", 3600, latestNotice);
-                log.info("[ARCUS] SET : LatestNotice");
             }
         }
         else {
@@ -137,7 +135,6 @@ public class PostService {
         Future<Object> future = arcusClient.asyncGet("Category:Post");
         try {
             postCategory = (List<Category>) future.get(1000L, TimeUnit.MILLISECONDS);
-            log.info("[ARCUS] GET : Category:Board");
         } catch (Exception e) {
             future.cancel(true);
             e.printStackTrace();
@@ -146,7 +143,6 @@ public class PostService {
         if (postCategory == null) {
             postCategory = postRepository.postCategoryAll();
             arcusClient.set("Category:Post", 3600, postCategory);
-            log.info("[ARCUS] SET : Category:Post");
         }
 
         return postCategory;

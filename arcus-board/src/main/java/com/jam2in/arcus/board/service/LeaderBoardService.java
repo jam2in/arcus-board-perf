@@ -149,7 +149,6 @@ public class LeaderBoardService {
 			Future<Object> future = arcusClient.asyncGet("BestLikesToday:All");
 			try {
 				bestLikes = (List<Post>) future.get(700L, TimeUnit.MILLISECONDS);
-				log.info("[ARCUS] GET : BestLikesToday");
 			} catch (Exception e) {
 				future.cancel(true);
 				e.printStackTrace();
@@ -158,7 +157,6 @@ public class LeaderBoardService {
 			if (bestLikes == null) {
 				bestLikes = leaderBoardRepository.bestLikesAll(period);
 				arcusClient.set("BestLikesToday", 600, bestLikes);
-				log.info("[ARCUS] SET : BestLikesToday");
 			}
 		}
 		else {
@@ -174,7 +172,6 @@ public class LeaderBoardService {
 			Future<Object> future = arcusClient.asyncGet("BestViewsToday:All");
 			try {
 				bestViews = (List<Post>) future.get(700L, TimeUnit.MILLISECONDS);
-				log.info("[ARCUS] GET : BestViewsToday");
 			} catch (Exception e) {
 				future.cancel(true);
 				e.printStackTrace();
@@ -183,7 +180,6 @@ public class LeaderBoardService {
 			if (bestViews == null) {
 				bestViews = leaderBoardRepository.bestViewsAll(period);
 				arcusClient.set("BestViewsToday", 600, bestViews);
-				log.info("[ARCUS] SET : BestViewsToday");
 			}
 		}
 		else {
@@ -199,7 +195,6 @@ public class LeaderBoardService {
 			Future<Object> future = arcusClient.asyncGet("BestLikesToday:"+bid);
 			try {
 				bestLikes = (List<Post>) future.get(1000L, TimeUnit.MILLISECONDS);
-				log.info("[ARCUS] GET : BestLikesToday:"+bid);
 			} catch (Exception e) {
 				future.cancel(true);
 				e.printStackTrace();
@@ -208,7 +203,6 @@ public class LeaderBoardService {
 			if (bestLikes == null) {
 				bestLikes = leaderBoardRepository.bestLikesBoard(bid, period);
 				arcusClient.set("BestLikesToday:"+bid, 600, bestLikes);
-				log.info("[ARCUS] SET : BestLikesToday:"+bid);
 			}
 		}
 		return bestLikes;
@@ -220,7 +214,6 @@ public class LeaderBoardService {
 			Future<Object> future = arcusClient.asyncGet("BestViewsToday:"+bid);
 			try {
 				bestViews = (List<Post>) future.get(1000L, TimeUnit.MILLISECONDS);
-				log.info("[ARCUS] GET : BestViewsToday:"+bid);
 			} catch (Exception e) {
 				future.cancel(true);
 				e.printStackTrace();
@@ -229,7 +222,6 @@ public class LeaderBoardService {
 			if (bestViews == null) {
 				bestViews = leaderBoardRepository.bestViewsBoard(bid, period);
 				arcusClient.set("BestViewsToday:"+bid, 600, bestViews);
-				log.info("[ARCUS] SET : BestViewsToday:"+bid);
 			}
 		}
 		return bestViews;
