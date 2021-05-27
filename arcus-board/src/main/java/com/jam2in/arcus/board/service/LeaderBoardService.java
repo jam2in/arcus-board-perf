@@ -146,7 +146,7 @@ public class LeaderBoardService {
 	public List<Post> bestLikesAll(int period) {
 		List<Post> bestLikes = null;
 		if (period==0) {
-			Future<Object> future = arcusClient.asyncGet("BestLikesToday");
+			Future<Object> future = arcusClient.asyncGet("BestLikesToday:All");
 			try {
 				bestLikes = (List<Post>) future.get(700L, TimeUnit.MILLISECONDS);
 				log.info("[ARCUS] GET : BestLikesToday");
@@ -171,7 +171,7 @@ public class LeaderBoardService {
 	public List<Post> bestViewsAll(int period) {
 		List<Post> bestViews = null;
 		if (period==0) {
-			Future<Object> future = arcusClient.asyncGet("BestViewsToday");
+			Future<Object> future = arcusClient.asyncGet("BestViewsToday:All");
 			try {
 				bestViews = (List<Post>) future.get(700L, TimeUnit.MILLISECONDS);
 				log.info("[ARCUS] GET : BestViewsToday");
@@ -194,11 +194,45 @@ public class LeaderBoardService {
 	}
 
 	public List<Post> bestLikesBoard(int bid, int period) {
-		return leaderBoardRepository.bestLikesBoard(bid, period);
+		List<Post> bestLikes = null;
+		if (period==0) {
+			Future<Object> future = arcusClient.asyncGet("BestLikesToday:"+bid);
+			try {
+				bestLikes = (List<Post>) future.get(1000L, TimeUnit.MILLISECONDS);
+				log.info("[ARCUS] GET : BestLikesToday:"+bid);
+			} catch (Exception e) {
+				future.cancel(true);
+				e.printStackTrace();
+			}
+
+			if (bestLikes == null) {
+				bestLikes = leaderBoardRepository.bestLikesBoard(bid, period);
+				arcusClient.set("BestLikesToday:"+bid, 600, bestLikes);
+				log.info("[ARCUS] SET : BestLikesToday:"+bid);
+			}
+		}
+		return bestLikes;
 	}
 
 	public List<Post> bestViewsBoard(int bid, int period) {
-		return leaderBoardRepository.bestViewsBoard(bid, period);
+		List<Post> bestViews = null;
+		if (period==0) {
+			Future<Object> future = arcusClient.asyncGet("BestViewsToday:"+bid);
+			try {
+				bestViews = (List<Post>) future.get(1000L, TimeUnit.MILLISECONDS);
+				log.info("[ARCUS] GET : BestViewsToday:"+bid);
+			} catch (Exception e) {
+				future.cancel(true);
+				e.printStackTrace();
+			}
+
+			if (bestViews == null) {
+				bestViews = leaderBoardRepository.bestViewsBoard(bid, period);
+				arcusClient.set("BestViewsToday:"+bid, 600, bestViews);
+				log.info("[ARCUS] SET : BestViewsToday:"+bid);
+			}
+		}
+		return bestViews;
 	}
 
 }

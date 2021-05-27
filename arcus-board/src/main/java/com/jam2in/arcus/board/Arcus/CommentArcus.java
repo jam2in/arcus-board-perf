@@ -48,8 +48,7 @@ public class CommentArcus {
 				Map<Integer, Element<Object>> result = future.get(1000L, TimeUnit.MILLISECONDS);
 				CollectionResponse response = future.getOperationStatus().getResponse();
 				if (response.equals(CollectionResponse.NOT_FOUND)) {
-					setCommentList(pid, pageSize);
-					return getCommentList(pid, startList, pageSize);
+					return setCommentList(pid, pageSize);
 				}
 				for (Map.Entry<Integer, Element<Object>> each : result.entrySet()) {
 					commentList.add((Comment)each.getValue().getValue());
@@ -64,7 +63,7 @@ public class CommentArcus {
 		return commentList;
 	}
 
-	public void setCommentList(int pid, int pageSize) {
+	public List<Comment> setCommentList(int pid, int pageSize) {
 		List<Comment> commentList = commentRepository.selectAll(pid, 0, pageSize*5);
 		String key = "CommentList:"+pid;
 
@@ -72,7 +71,7 @@ public class CommentArcus {
 
 		if (commentList.size() == 0) {
 			arcusClient.asyncBopCreate(key, ElementValueType.OTHERS, attributes);
-			return;
+			return commentList;
 		}
 
 		List<Element<Object>> elements = new ArrayList<>();
@@ -86,8 +85,6 @@ public class CommentArcus {
 		} catch (IllegalStateException e) {
 			e.printStackTrace();
 		}
-
-		if (future == null)	return;
 
 		try {
 			Map<Integer, CollectionOperationStatus> result = future.get(1000L, TimeUnit.MILLISECONDS);
@@ -106,6 +103,8 @@ public class CommentArcus {
 			future.cancel(true);
 			e.printStackTrace();
 		}
+
+		return commentList;
 	}
 
 	public void insertComment(int cid) {

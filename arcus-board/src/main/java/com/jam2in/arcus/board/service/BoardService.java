@@ -1,10 +1,8 @@
 package com.jam2in.arcus.board.service;
 
-import com.jam2in.arcus.board.configuration.ArcusConfiguration;
-import com.jam2in.arcus.board.model.Board;
-import com.jam2in.arcus.board.model.Category;
-import com.jam2in.arcus.board.repository.BoardRepository;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -13,11 +11,13 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-
 import net.spy.memcached.ArcusClientPool;
+
+import com.jam2in.arcus.board.configuration.ArcusConfiguration;
+import com.jam2in.arcus.board.model.Board;
+import com.jam2in.arcus.board.model.Category;
+import com.jam2in.arcus.board.repository.BoardRepository;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -89,6 +89,22 @@ public class BoardService {
     }
 
     public List<Category> boardCategoryAll() {
-        return boardRepository.boardCategoryAll();
+        List<Category> boardCategory = null;
+        Future<Object> future = arcusClient.asyncGet("Category:Board");
+        try {
+            boardCategory = (List<Category>) future.get(1000L, TimeUnit.MILLISECONDS);
+            log.info("[ARCUS] GET : Category:Board");
+        } catch (Exception e) {
+            future.cancel(true);
+            e.printStackTrace();
+        }
+
+        if (boardCategory == null) {
+            boardCategory = boardRepository.boardCategoryAll();
+            arcusClient.set("Category:Board", 3600, boardCategory);
+            log.info("[ARCUS] SET : Category:Board");
+        }
+
+        return boardCategory;
     }
 }

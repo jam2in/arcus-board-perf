@@ -43,6 +43,19 @@
         ORDER BY pid DESC
     </select>
 
+    <select id="selectAllCache" resultType="com.jam2in.arcus.board.model.Post">
+        SELECT p.*, u.name userName, c.name categoryName
+        FROM (
+        SELECT * FROM post
+        USE INDEX(idx_post)
+        WHERE bid = #{bid}
+        ORDER BY pid DESC
+        LIMIT #{startList}, #{pageSize}
+        ) p INNER JOIN user u ON p.uid = u.uid
+        INNER JOIN category_post c ON p.category = c.id
+        ORDER BY pid DESC
+    </select>
+
     <select id="selectCategory" resultType="com.jam2in.arcus.board.model.Post">
         SELECT p.pid, p.title, p.likes, p.views, p.created_date, p.cmtCnt, u.name userName, c.name categoryName
         FROM (

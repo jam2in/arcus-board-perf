@@ -1,12 +1,13 @@
 package com.jam2in.arcus.board.repository;
 
-import com.jam2in.arcus.board.model.Category;
-import com.jam2in.arcus.board.model.Post;
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import com.jam2in.arcus.board.model.Category;
+import com.jam2in.arcus.board.model.Post;
 
 @Mapper
 @Repository
@@ -17,6 +18,7 @@ public interface PostRepository {
 
     Post selectOne(int pid);
     List<Post> selectAll(@Param("bid") int bid, @Param("startList") int startList, @Param("pageSize") int pageSize);
+    List<Post> selectAllCache(@Param("bid") int bid, @Param("startList") int startList, @Param("pageSize") int pageSize);
     List<Post> selectCategory(@Param("bid") int bid, @Param("category") int category, @Param("startList") int startList, @Param("pageSize") int pageSize);
     List<Post> selectLatestNotice(int bid);
     List<Integer> selectLatestPid(int bid);

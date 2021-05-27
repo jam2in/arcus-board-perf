@@ -133,6 +133,22 @@ public class PostService {
     }
 
     public List<Category> postCategoryAll(){
-        return postRepository.postCategoryAll();
+        List<Category> postCategory = null;
+        Future<Object> future = arcusClient.asyncGet("Category:Post");
+        try {
+            postCategory = (List<Category>) future.get(1000L, TimeUnit.MILLISECONDS);
+            log.info("[ARCUS] GET : Category:Board");
+        } catch (Exception e) {
+            future.cancel(true);
+            e.printStackTrace();
+        }
+
+        if (postCategory == null) {
+            postCategory = postRepository.postCategoryAll();
+            arcusClient.set("Category:Post", 3600, postCategory);
+            log.info("[ARCUS] SET : Category:Post");
+        }
+
+        return postCategory;
     }
 }
