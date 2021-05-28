@@ -1,15 +1,16 @@
 package com.jam2in.arcus.board.service;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.jam2in.arcus.board.model.Category;
 import com.jam2in.arcus.board.model.Pagination;
 import com.jam2in.arcus.board.model.Post;
 import com.jam2in.arcus.board.repository.BoardRepository;
 import com.jam2in.arcus.board.repository.PostRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 public class PostService {
@@ -28,28 +29,28 @@ public class PostService {
 
     @Transactional
     public void updatePost(Post post) {
-        postRepository.update(post);
         int bid = post.getBid();
         boardRepository.increaseReqRecent(bid);
         boardRepository.increaseReqToday(bid);
+        postRepository.update(post);
     }
 
     @Transactional
     public int deletePost(int pid) {
         int bid = postRepository.selectOne(pid).getBid();
-        postRepository.delete(pid);
         boardRepository.increaseReqRecent(bid);
         boardRepository.increaseReqToday(bid);
+        postRepository.delete(pid);
 
         return bid;
     }
 
     @Transactional
     public Post detailPost(int pid) {
-        postRepository.increaseViews(pid);
         Post post = postRepository.selectOne(pid);
         boardRepository.increaseReqRecent(post.getBid());
         boardRepository.increaseReqToday(post.getBid());
+        postRepository.increaseViews(pid);
         return post;
     }
 
