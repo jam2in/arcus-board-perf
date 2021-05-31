@@ -156,7 +156,7 @@ public class LeaderBoardService {
 
 			if (bestLikes == null) {
 				bestLikes = leaderBoardRepository.bestLikesAll(period);
-				arcusClient.set("BestLikesToday", 600, bestLikes);
+				arcusClient.set("BestLikesToday:All", 600, bestLikes);
 			}
 		}
 		else {
@@ -179,7 +179,7 @@ public class LeaderBoardService {
 
 			if (bestViews == null) {
 				bestViews = leaderBoardRepository.bestViewsAll(period);
-				arcusClient.set("BestViewsToday", 600, bestViews);
+				arcusClient.set("BestViewsToday:All", 600, bestViews);
 			}
 		}
 		else {
