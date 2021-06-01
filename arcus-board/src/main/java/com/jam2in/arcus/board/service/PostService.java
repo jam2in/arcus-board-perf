@@ -101,7 +101,7 @@ public class PostService {
                 latestNotice = (List<Post>) future.get(700L, TimeUnit.MILLISECONDS);
             } catch (Exception e) {
                 future.cancel(true);
-                e.printStackTrace();
+                log.error(e.getMessage(), e);
             }
 
             if (latestNotice == null) {
@@ -137,7 +137,7 @@ public class PostService {
             postCategory = (List<Category>) future.get(1000L, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             future.cancel(true);
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         }
 
         if (postCategory == null) {

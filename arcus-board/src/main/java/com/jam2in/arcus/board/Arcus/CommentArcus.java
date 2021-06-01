@@ -55,7 +55,7 @@ public class CommentArcus {
 				}
 			} catch (Exception e) {
 				future.cancel(true);
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			}
 		}
 
@@ -82,7 +82,7 @@ public class CommentArcus {
 		try {
 			future = arcusClient.asyncBopPipedInsertBulk(key, elements, attributes);
 		} catch (IllegalStateException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 
 		try {
@@ -97,7 +97,7 @@ public class CommentArcus {
 			}
 		} catch (Exception e) {
 			future.cancel(true);
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 
 		return commentList;
@@ -113,7 +113,7 @@ public class CommentArcus {
 			if (response.equals(CollectionResponse.OVERFLOWED)) return;
 		} catch (Exception e) {
 			future.cancel(true);
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 
@@ -128,7 +128,7 @@ public class CommentArcus {
 			if (response.equals(CollectionResponse.NOT_FOUND_ELEMENT)) return;
 		} catch (Exception e) {
 			future.cancel(true);
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 
@@ -142,7 +142,7 @@ public class CommentArcus {
 			if (response.equals(CollectionResponse.NOT_FOUND_ELEMENT)) return;
 		} catch (Exception e) {
 			future.cancel(true);
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 
@@ -159,7 +159,7 @@ public class CommentArcus {
 			comment = (Comment) result.get((long)cid).getValue();
 		} catch (Exception e) {
 			future.cancel(true);
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		return comment;
 	}

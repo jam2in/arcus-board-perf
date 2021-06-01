@@ -74,7 +74,7 @@ public class PostArcus {
 			}
 		} catch (Exception e) {
 			postListFuture.cancel(true);
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		// Merge views
 		try {
@@ -88,7 +88,7 @@ public class PostArcus {
 			}
 		} catch (Exception e) {
 			viewsFuture.cancel(true);
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		// Merge likes
 		try {
@@ -102,7 +102,7 @@ public class PostArcus {
 			}
 		} catch (Exception e) {
 			likesFuture.cancel(true);
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		// Merge comment count
 		try {
@@ -116,7 +116,7 @@ public class PostArcus {
 			}
 		} catch (Exception e) {
 			commentCountFuture.cancel(true);
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 
 		return postList;
@@ -157,6 +157,7 @@ public class PostArcus {
 			setPostListCache("PostLikes:"+bid, likes, attributes);
 			setPostListCache("PostCmtCnt:"+bid, cmtCnt, attributes);
 		}
+		log.warn("[ARCUS] SET : PostList");
 	}
 	
 	public void setPostListCache(String key, List<Element<Object>> elements, CollectionAttributes attributes) {
@@ -164,7 +165,7 @@ public class PostArcus {
 		try {
 			future = arcusClient.asyncBopPipedInsertBulk(key, elements, attributes);
 		} catch (IllegalStateException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 
 		if (future == null) return;
@@ -180,7 +181,7 @@ public class PostArcus {
 			}
 		} catch (Exception e) {
 			future.cancel(true);
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 
@@ -192,7 +193,7 @@ public class PostArcus {
 				if (result) break;
 			} catch (Exception e) {
 				future.cancel(true);
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			}
 		}
 	}
@@ -213,7 +214,7 @@ public class PostArcus {
 				log.error("[ARCUS] Failed to insert : " + key + ":" + bkey);
 		} catch (Exception e) {
 			future.cancel(true);
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 
@@ -228,7 +229,7 @@ public class PostArcus {
 			}
 		} catch (Exception e) {
 			future.cancel(true);
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 
@@ -243,7 +244,7 @@ public class PostArcus {
 			}
 		} catch (Exception e) {
 			future.cancel(true);
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 
@@ -258,7 +259,7 @@ public class PostArcus {
 			}
 		} catch (Exception e) {
 			future.cancel(true);
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 
@@ -273,7 +274,7 @@ public class PostArcus {
 			}
 		} catch (Exception e) {
 			future.cancel(true);
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 
@@ -293,7 +294,7 @@ public class PostArcus {
 			if (response.equals(CollectionResponse.NOT_FOUND_ELEMENT)) return;
 		} catch (Exception e) {
 			future.cancel(true);
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 
@@ -306,7 +307,7 @@ public class PostArcus {
 			if (response.equals(CollectionResponse.NOT_FOUND_ELEMENT)) return;
 		} catch (Exception e) {
 			future.cancel(true);
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 
@@ -330,7 +331,7 @@ public class PostArcus {
 			post = (Post) result.get((long)pid).getValue();
 		} catch (Exception e) {
 			postListFuture.cancel(true);
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		try {
 			Map<Long, Element<Object>> result = viewsFuture.get(1000L, TimeUnit.MILLISECONDS);
@@ -340,7 +341,7 @@ public class PostArcus {
 			post.setViews(Integer.parseInt((String)result.get((long)pid).getValue()));
 		} catch (Exception e) {
 			viewsFuture.cancel(true);
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		try {
 			Map<Long, Element<Object>> result = likesFuture.get(1000L, TimeUnit.MILLISECONDS);
@@ -350,7 +351,7 @@ public class PostArcus {
 			post.setLikes(Integer.parseInt((String)result.get((long)pid).getValue()));
 		} catch (Exception e) {
 			likesFuture.cancel(true);
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		try {
 			Map<Long, Element<Object>> result = commentCountFuture.get(1000L, TimeUnit.MILLISECONDS);
@@ -360,7 +361,7 @@ public class PostArcus {
 			post.setCmtCnt(Integer.parseInt((String)result.get((long)pid).getValue()));
 		} catch (Exception e) {
 			commentCountFuture.cancel(true);
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 
 		return post;

@@ -40,7 +40,7 @@ public class BoardService {
             boardList = (List<Board>) future.get(700L, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             future.cancel(true);
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         }
 
         if (boardList == null) {
@@ -61,7 +61,7 @@ public class BoardService {
                     bestBoard = (List<Board>) future.get(700L, TimeUnit.MILLISECONDS);
                 } catch (Exception e) {
                     future.cancel(true);
-                    e.printStackTrace();
+                    log.error(e.getMessage(), e);
                 }
 
                 if (bestBoard == null) {
@@ -91,7 +91,7 @@ public class BoardService {
             boardCategory = (List<Category>) future.get(1000L, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             future.cancel(true);
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         }
 
         if (boardCategory == null) {

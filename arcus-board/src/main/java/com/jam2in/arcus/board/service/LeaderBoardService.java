@@ -151,7 +151,7 @@ public class LeaderBoardService {
 				bestLikes = (List<Post>) future.get(700L, TimeUnit.MILLISECONDS);
 			} catch (Exception e) {
 				future.cancel(true);
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			}
 
 			if (bestLikes == null) {
@@ -174,7 +174,7 @@ public class LeaderBoardService {
 				bestViews = (List<Post>) future.get(700L, TimeUnit.MILLISECONDS);
 			} catch (Exception e) {
 				future.cancel(true);
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			}
 
 			if (bestViews == null) {
@@ -197,7 +197,7 @@ public class LeaderBoardService {
 				bestLikes = (List<Post>) future.get(1000L, TimeUnit.MILLISECONDS);
 			} catch (Exception e) {
 				future.cancel(true);
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			}
 
 			if (bestLikes == null) {
@@ -216,7 +216,7 @@ public class LeaderBoardService {
 				bestViews = (List<Post>) future.get(1000L, TimeUnit.MILLISECONDS);
 			} catch (Exception e) {
 				future.cancel(true);
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			}
 
 			if (bestViews == null) {
