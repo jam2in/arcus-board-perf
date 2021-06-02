@@ -30,7 +30,7 @@ public class BoardService {
 
     @Transactional(readOnly = true)
     public Board selectOneBoard(int id) {
-        return boardRepository.selectOne(id);
+        return selectAllBoard().get(id-1);
     }
 
     public List<Board> selectAllBoard() {
