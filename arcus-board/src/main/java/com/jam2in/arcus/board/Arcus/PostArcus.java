@@ -134,10 +134,10 @@ public class PostArcus {
 			deletePostListCache("PostCmtCnt:"+bid);
 
 			if (postList.size() == 0) {
-				arcusClient.asyncBopCreate("PostList:"+bid, ElementValueType.OTHERS, attributes);
-				arcusClient.asyncBopCreate("PostViews:"+bid, ElementValueType.STRING, attributes);
-				arcusClient.asyncBopCreate("PostLikes:"+bid, ElementValueType.STRING, attributes);
-				arcusClient.asyncBopCreate("PostCmtCnt:"+bid, ElementValueType.STRING, attributes);
+				createPostListCache("PostList:"+bid, ElementValueType.OTHERS, attributes);
+				createPostListCache("PostViews:"+bid, ElementValueType.STRING, attributes);
+				createPostListCache("PostLikes:"+bid, ElementValueType.STRING, attributes);
+				createPostListCache("PostCmtCnt:"+bid, ElementValueType.STRING, attributes);
 				continue;
 			}
 
@@ -156,6 +156,8 @@ public class PostArcus {
 			setPostListCache("PostViews:"+bid, views, attributes);
 			setPostListCache("PostLikes:"+bid, likes, attributes);
 			setPostListCache("PostCmtCnt:"+bid, cmtCnt, attributes);
+
+			setPostCount(bid);
 		}
 		log.warn("[ARCUS] SET : PostList");
 	}
@@ -190,6 +192,19 @@ public class PostArcus {
 			Future<Boolean> future = arcusClient.delete(key);
 			try {
 				Boolean result = future.get(1000L, TimeUnit.MILLISECONDS);
+				if (result) break;
+			} catch (Exception e) {
+				future.cancel(true);
+				log.error(e.getMessage(), e);
+			}
+		}
+	}
+
+	public void createPostListCache(String key, ElementValueType valueType, CollectionAttributes attributes) {
+		for (int i=0; i<5; i++) {
+			CollectionFuture<Boolean> future = arcusClient.asyncBopCreate(key, valueType, attributes);
+			try {
+				Boolean result = future.get(700L, TimeUnit.MILLISECONDS);
 				if (result) break;
 			} catch (Exception e) {
 				future.cancel(true);
@@ -365,6 +380,66 @@ public class PostArcus {
 		}
 
 		return post;
+	}
+
+	public int getPostCount(int bid) {
+		int postCount = 0;
+		CollectionFuture<Map<Long, Element<Object>>> future = arcusClient.asyncBopGet("PostCount", bid, ElementFlagFilter.DO_NOT_FILTER, false, false);
+		try {
+			Map<Long, Element<Object>> result = future.get(700L, TimeUnit.MILLISECONDS);
+			if (!future.getOperationStatus().isSuccess()) {
+				return setPostCount(bid);
+			}
+			postCount = Integer.parseInt((String)result.get((long)bid).getValue());
+		} catch (Exception e) {
+			future.cancel(true);
+			log.error(e.getMessage(), e);
+		}
+
+		return postCount;
+	}
+
+	public int setPostCount(int bid) {
+		int postCount = postRepository.countPost(bid);
+		CollectionAttributes attributes = new CollectionAttributes();
+		attributes.setExpireTime(3600);
+		CollectionFuture<Boolean> future = arcusClient.asyncBopUpsert("PostCount", bid, new byte[]{1,1}, String.valueOf(postCount), attributes);
+		try {
+			if(!future.get(1000L, TimeUnit.MILLISECONDS))
+				log.error("[ARCUS] Failed to set PostCount:" + bid);
+		} catch (Exception e) {
+			future.cancel(true);
+			log.error(e.getMessage(), e);
+		}
+		return postCount;
+	}
+
+	public void increasePostCount(int bid) {
+		CollectionFuture<Long> future = arcusClient.asyncBopIncr("PostCount", bid, 1);
+		try {
+			Long result = future.get(700L, TimeUnit.MILLISECONDS);
+			if (result==null) {
+				log.error("[ARCUS] Failed to increase PostCount:" + bid);
+				log.error(String.valueOf(future.getOperationStatus().getResponse()));
+			}
+		} catch (Exception e) {
+			future.cancel(true);
+			log.error(e.getMessage(), e);
+		}
+	}
+
+	public void decreasePostCount(int bid) {
+		CollectionFuture<Long> future = arcusClient.asyncBopDecr("PostCount", bid, 1);
+		try {
+			Long result = future.get(700L, TimeUnit.MILLISECONDS);
+			if (result==null) {
+				log.error("[ARCUS] Failed to decrease PostCount:" + bid);
+				log.error(String.valueOf(future.getOperationStatus().getResponse()));
+			}
+		} catch (Exception e) {
+			future.cancel(true);
+			log.error(e.getMessage(), e);
+		}
 	}
 
 }

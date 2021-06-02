@@ -41,6 +41,7 @@ public class PostService {
         boardRepository.increaseReqToday(bid);
         postRepository.insert(post);
         postArcus.insertPost(post.getPid());
+        postArcus.increasePostCount(bid);
     }
 
     @Transactional
@@ -59,6 +60,7 @@ public class PostService {
         boardRepository.increaseReqToday(bid);
         postRepository.delete(pid);
         postArcus.deletePost(bid, pid);
+        postArcus.decreasePostCount(bid);
 
         return bid;
     }
@@ -117,7 +119,7 @@ public class PostService {
     }
 
     public int countPost(int bid) {
-        return postRepository.countPost(bid);
+        return postArcus.getPostCount(bid);
     }
 
     public int countPostCategory(int bid, int category) {
