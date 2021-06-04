@@ -66,7 +66,7 @@ public class PostArcus {
 		// Merge post list
 		try {
 			Map<Integer, Element<Object>> result = postListFuture.get(1000L, TimeUnit.MILLISECONDS);
-			if (result==null) {
+			if (!postListFuture.getOperationStatus().isSuccess()) {
 				return postRepository.selectAll(bid, startList, pageSize);
 			}
 			for (Map.Entry<Integer, Element<Object>> each : result.entrySet()) {
@@ -79,7 +79,7 @@ public class PostArcus {
 		// Merge views
 		try {
 			Map<Integer, Element<Object>> result = viewsFuture.get(1000L, TimeUnit.MILLISECONDS);
-			if (result==null) {
+			if (!viewsFuture.getOperationStatus().isSuccess()) {
 				return postRepository.selectAll(bid, startList, pageSize);
 			}
 			int i=0;
@@ -93,7 +93,7 @@ public class PostArcus {
 		// Merge likes
 		try {
 			Map<Integer, Element<Object>> result = likesFuture.get(1000L, TimeUnit.MILLISECONDS);
-			if (result==null) {
+			if (!likesFuture.getOperationStatus().isSuccess()) {
 				return postRepository.selectAll(bid, startList, pageSize);
 			}
 			int i=0;
@@ -107,7 +107,7 @@ public class PostArcus {
 		// Merge comment count
 		try {
 			Map<Integer, Element<Object>> result = commentCountFuture.get(1000L, TimeUnit.MILLISECONDS);
-			if (result==null) {
+			if (!commentCountFuture.getOperationStatus().isSuccess()) {
 				return postRepository.selectAll(bid, startList, pageSize);
 			}
 			int i=0;
@@ -340,7 +340,7 @@ public class PostArcus {
 
 		try {
 			Map<Long, Element<Object>> result = postListFuture.get(1000L, TimeUnit.MILLISECONDS);
-			if (result==null) {
+			if (!postListFuture.getOperationStatus().isSuccess()) {
 				return postRepository.selectOne(pid);
 			}
 			post = (Post) result.get((long)pid).getValue();
@@ -350,7 +350,7 @@ public class PostArcus {
 		}
 		try {
 			Map<Long, Element<Object>> result = viewsFuture.get(1000L, TimeUnit.MILLISECONDS);
-			if (result==null) {
+			if (!viewsFuture.getOperationStatus().isSuccess()) {
 				return postRepository.selectOne(pid);
 			}
 			post.setViews(Integer.parseInt((String)result.get((long)pid).getValue()));
@@ -360,7 +360,7 @@ public class PostArcus {
 		}
 		try {
 			Map<Long, Element<Object>> result = likesFuture.get(1000L, TimeUnit.MILLISECONDS);
-			if (result==null) {
+			if (!likesFuture.getOperationStatus().isSuccess()) {
 				return postRepository.selectOne(pid);
 			}
 			post.setLikes(Integer.parseInt((String)result.get((long)pid).getValue()));
@@ -370,7 +370,7 @@ public class PostArcus {
 		}
 		try {
 			Map<Long, Element<Object>> result = commentCountFuture.get(1000L, TimeUnit.MILLISECONDS);
-			if (result==null) {
+			if (!commentCountFuture.getOperationStatus().isSuccess()) {
 				return postRepository.selectOne(pid);
 			}
 			post.setCmtCnt(Integer.parseInt((String)result.get((long)pid).getValue()));
