@@ -129,29 +129,35 @@ public class PostArcus {
 			CollectionAttributes attributes = new CollectionAttributes(3600, PAGE_SIZE*5L, CollectionOverflowAction.smallest_trim);
 
 			deletePostListCache("PostList:"+bid);
+			deletePostListCache("PostContent:"+bid);
 			deletePostListCache("PostViews:"+bid);
 			deletePostListCache("PostLikes:"+bid);
 			deletePostListCache("PostCmtCnt:"+bid);
 
 			if (postList.size() == 0) {
 				createPostListCache("PostList:"+bid, ElementValueType.OTHERS, attributes);
+				createPostListCache("PostContent:"+bid, ElementValueType.STRING, attributes);
 				createPostListCache("PostViews:"+bid, ElementValueType.STRING, attributes);
 				createPostListCache("PostLikes:"+bid, ElementValueType.STRING, attributes);
 				createPostListCache("PostCmtCnt:"+bid, ElementValueType.STRING, attributes);
 				continue;
 			}
 
+			List<Element<Object>> contents = new ArrayList<>();
 			List<Element<Object>> posts = new ArrayList<>();
 			List<Element<Object>> views = new ArrayList<>();
 			List<Element<Object>> likes = new ArrayList<>();
 			List<Element<Object>> cmtCnt = new ArrayList<>();
 			for (Post post : postList) {
+				contents.add(new Element<>(post.getPid(), post.getContent(), new byte[]{1,1}));
+				post.setContent(null);
 				posts.add(new Element<>(post.getPid(), post, new byte[]{1,1}));
 				views.add(new Element<>(post.getPid(), String.valueOf(post.getViews()), new byte[]{1,1}));
 				likes.add(new Element<>(post.getPid(), String.valueOf(post.getLikes()), new byte[]{1,1}));
 				cmtCnt.add(new Element<>(post.getPid(), String.valueOf(post.getCmtCnt()), new byte[]{1,1}));
 			}
 
+			setPostListCache("PostContent:"+bid, contents, attributes);
 			setPostListCache("PostList:"+bid, posts, attributes);
 			setPostListCache("PostViews:"+bid, views, attributes);
 			setPostListCache("PostLikes:"+bid, likes, attributes);
@@ -216,6 +222,8 @@ public class PostArcus {
 	public void insertPost(int pid) {
 		Post post = postRepository.selectOne(pid);
 
+		insertPostCache("PostContent:"+post.getBid(), pid, post.getContent());
+		post.setContent(null);
 		insertPostCache("PostList:"+post.getBid(), pid, post);
 		insertPostCache("PostViews:"+post.getBid(), pid, String.valueOf(post.getViews()));
 		insertPostCache("PostLikes:"+post.getBid(), pid, String.valueOf(post.getLikes()));
@@ -295,6 +303,7 @@ public class PostArcus {
 
 	public void deletePost(int bid, int pid) {
 		deletePostCache("PostList:"+bid, pid);
+		deletePostCache("PostContent:"+bid, pid);
 		deletePostCache("PostViews:"+bid, pid);
 		deletePostCache("PostLikes:"+bid, pid);
 		deletePostCache("PostCmtCnt:"+bid, pid);
@@ -314,14 +323,23 @@ public class PostArcus {
 	}
 
 	public void updatePost(Post post) {
-		String key = "PostList:"+post.getBid();
-		CollectionFuture<Boolean> future = arcusClient.asyncBopUpdate(key, post.getPid(), null, post);
+		CollectionFuture<Boolean> ContentFuture = arcusClient.asyncBopUpdate("PostContent:"+post.getBid(), post.getPid(), null, post.getContent());
+		post.setContent(null);
+		CollectionFuture<Boolean> postListFuture = arcusClient.asyncBopUpdate("PostList:"+post.getBid(), post.getPid(), null, post);
 		try {
-			future.get(1000L, TimeUnit.MILLISECONDS);
-			CollectionResponse response = future.getOperationStatus().getResponse();
+			ContentFuture.get(1000L, TimeUnit.MILLISECONDS);
+			CollectionResponse response = ContentFuture.getOperationStatus().getResponse();
 			if (response.equals(CollectionResponse.NOT_FOUND_ELEMENT)) return;
 		} catch (Exception e) {
-			future.cancel(true);
+			ContentFuture.cancel(true);
+			log.error(e.getMessage(), e);
+		}
+		try {
+			postListFuture.get(1000L, TimeUnit.MILLISECONDS);
+			CollectionResponse response = postListFuture.getOperationStatus().getResponse();
+			if (response.equals(CollectionResponse.NOT_FOUND_ELEMENT)) return;
+		} catch (Exception e) {
+			postListFuture.cancel(true);
 			log.error(e.getMessage(), e);
 		}
 	}
@@ -331,6 +349,8 @@ public class PostArcus {
 
 		CollectionFuture<Map<Long, Element<Object>>> postListFuture
 			= arcusClient.asyncBopGet("PostList:"+bid, pid, ElementFlagFilter.DO_NOT_FILTER, false, false);
+		CollectionFuture<Map<Long, Element<Object>>> contentFuture
+			= arcusClient.asyncBopGet("PostContent:"+bid, pid, ElementFlagFilter.DO_NOT_FILTER, false, false);
 		CollectionFuture<Map<Long, Element<Object>>> viewsFuture
 			= arcusClient.asyncBopGet("PostViews:"+bid, pid, ElementFlagFilter.DO_NOT_FILTER, false, false);
 		CollectionFuture<Map<Long, Element<Object>>> likesFuture
@@ -346,6 +366,16 @@ public class PostArcus {
 			post = (Post) result.get((long)pid).getValue();
 		} catch (Exception e) {
 			postListFuture.cancel(true);
+			log.error(e.getMessage(), e);
+		}
+		try {
+			Map<Long, Element<Object>> result = contentFuture.get(1000L, TimeUnit.MILLISECONDS);
+			if (!contentFuture.getOperationStatus().isSuccess()) {
+				return postRepository.selectOne(pid);
+			}
+			post.setContent((String)result.get((long)pid).getValue());
+		} catch (Exception e) {
+			contentFuture.cancel(true);
 			log.error(e.getMessage(), e);
 		}
 		try {
