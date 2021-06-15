@@ -3,13 +3,13 @@ package com.jam2in.arcus.board.Arcus;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+
+import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import net.spy.memcached.ArcusClientPool;
@@ -33,9 +33,11 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class PostArcus {
 	@Autowired
-	PostRepository postRepository;
+	private PostRepository postRepository;
+	@Autowired
+	private PostCachingQueue postCachingQueue;
 
-	static final int PAGE_SIZE = 20;
+	private static final int PAGE_SIZE = 20;
 
 	ApplicationContext context = new AnnotationConfigApplicationContext(ArcusConfiguration.class);
 	ArcusClientPool arcusClient = context.getBean("arcusClient", ArcusClientPool.class);
@@ -67,6 +69,7 @@ public class PostArcus {
 		try {
 			Map<Integer, Element<Object>> result = postListFuture.get(1000L, TimeUnit.MILLISECONDS);
 			if (!postListFuture.getOperationStatus().isSuccess()) {
+				postCachingQueue.put(bid);
 				return postRepository.selectAll(bid, startList, pageSize);
 			}
 			for (Map.Entry<Integer, Element<Object>> each : result.entrySet()) {
@@ -75,11 +78,13 @@ public class PostArcus {
 		} catch (Exception e) {
 			postListFuture.cancel(true);
 			log.error(e.getMessage(), e);
+			return postRepository.selectAll(bid, startList, pageSize);
 		}
 		// Merge views
 		try {
 			Map<Integer, Element<Object>> result = viewsFuture.get(1000L, TimeUnit.MILLISECONDS);
 			if (!viewsFuture.getOperationStatus().isSuccess()) {
+				postCachingQueue.put(bid);
 				return postRepository.selectAll(bid, startList, pageSize);
 			}
 			int i=0;
@@ -89,11 +94,13 @@ public class PostArcus {
 		} catch (Exception e) {
 			viewsFuture.cancel(true);
 			log.error(e.getMessage(), e);
+			return postRepository.selectAll(bid, startList, pageSize);
 		}
 		// Merge likes
 		try {
 			Map<Integer, Element<Object>> result = likesFuture.get(1000L, TimeUnit.MILLISECONDS);
 			if (!likesFuture.getOperationStatus().isSuccess()) {
+				postCachingQueue.put(bid);
 				return postRepository.selectAll(bid, startList, pageSize);
 			}
 			int i=0;
@@ -103,11 +110,13 @@ public class PostArcus {
 		} catch (Exception e) {
 			likesFuture.cancel(true);
 			log.error(e.getMessage(), e);
+			return postRepository.selectAll(bid, startList, pageSize);
 		}
 		// Merge comment count
 		try {
 			Map<Integer, Element<Object>> result = commentCountFuture.get(1000L, TimeUnit.MILLISECONDS);
 			if (!commentCountFuture.getOperationStatus().isSuccess()) {
+				postCachingQueue.put(bid);
 				return postRepository.selectAll(bid, startList, pageSize);
 			}
 			int i=0;
@@ -117,57 +126,62 @@ public class PostArcus {
 		} catch (Exception e) {
 			commentCountFuture.cancel(true);
 			log.error(e.getMessage(), e);
+			return postRepository.selectAll(bid, startList, pageSize);
 		}
 
 		return postList;
 	}
 
-	@Scheduled(fixedDelay = 3600000)
-	public void setPostList() {
+	@PostConstruct
+	public void setPostListAll() {
 		for (int bid=2; bid<12; bid++) {
-			List<Post> postList = postRepository.selectAllCache(bid, 0, PAGE_SIZE*5);
-			CollectionAttributes attributes = new CollectionAttributes(3600, PAGE_SIZE*5L, CollectionOverflowAction.smallest_trim);
-
-			deletePostListCache("PostList:"+bid);
-			deletePostListCache("PostContent:"+bid);
-			deletePostListCache("PostViews:"+bid);
-			deletePostListCache("PostLikes:"+bid);
-			deletePostListCache("PostCmtCnt:"+bid);
-
-			if (postList.size() == 0) {
-				createPostListCache("PostList:"+bid, ElementValueType.OTHERS, attributes);
-				createPostListCache("PostContent:"+bid, ElementValueType.STRING, attributes);
-				createPostListCache("PostViews:"+bid, ElementValueType.STRING, attributes);
-				createPostListCache("PostLikes:"+bid, ElementValueType.STRING, attributes);
-				createPostListCache("PostCmtCnt:"+bid, ElementValueType.STRING, attributes);
-				continue;
-			}
-
-			List<Element<Object>> contents = new ArrayList<>();
-			List<Element<Object>> posts = new ArrayList<>();
-			List<Element<Object>> views = new ArrayList<>();
-			List<Element<Object>> likes = new ArrayList<>();
-			List<Element<Object>> cmtCnt = new ArrayList<>();
-			for (Post post : postList) {
-				contents.add(new Element<>(post.getPid(), post.getContent(), new byte[]{1,1}));
-				post.setContent(null);
-				posts.add(new Element<>(post.getPid(), post, new byte[]{1,1}));
-				views.add(new Element<>(post.getPid(), String.valueOf(post.getViews()), new byte[]{1,1}));
-				likes.add(new Element<>(post.getPid(), String.valueOf(post.getLikes()), new byte[]{1,1}));
-				cmtCnt.add(new Element<>(post.getPid(), String.valueOf(post.getCmtCnt()), new byte[]{1,1}));
-			}
-
-			setPostListCache("PostContent:"+bid, contents, attributes);
-			setPostListCache("PostList:"+bid, posts, attributes);
-			setPostListCache("PostViews:"+bid, views, attributes);
-			setPostListCache("PostLikes:"+bid, likes, attributes);
-			setPostListCache("PostCmtCnt:"+bid, cmtCnt, attributes);
-
-			setPostCount(bid);
+			postCachingQueue.put(bid);
 		}
-		log.warn("[ARCUS] SET : PostList");
+		postCachingQueue.cachingPost();
 	}
-	
+
+	public void setPostList(int bid) {
+		List<Post> postList = postRepository.selectAllCache(bid, 0, PAGE_SIZE*5);
+		CollectionAttributes attributes = new CollectionAttributes(3600, PAGE_SIZE*5L, CollectionOverflowAction.smallest_trim);
+
+		arcusClient.delete("PostList:"+bid);
+		arcusClient.delete("PostContent:"+bid);
+		arcusClient.delete("PostViews:"+bid);
+		arcusClient.delete("PostLikes:"+bid);
+		arcusClient.delete("PostCmtCnt:"+bid);
+
+		if (postList.size() == 0) {
+			createPostListCache("PostList:"+bid, ElementValueType.OTHERS, attributes);
+			createPostListCache("PostContent:"+bid, ElementValueType.STRING, attributes);
+			createPostListCache("PostViews:"+bid, ElementValueType.STRING, attributes);
+			createPostListCache("PostLikes:"+bid, ElementValueType.STRING, attributes);
+			createPostListCache("PostCmtCnt:"+bid, ElementValueType.STRING, attributes);
+			return;
+		}
+
+		List<Element<Object>> contents = new ArrayList<>();
+		List<Element<Object>> posts = new ArrayList<>();
+		List<Element<Object>> views = new ArrayList<>();
+		List<Element<Object>> likes = new ArrayList<>();
+		List<Element<Object>> cmtCnt = new ArrayList<>();
+		for (Post post : postList) {
+			contents.add(new Element<>(post.getPid(), post.getContent(), new byte[]{1,1}));
+			post.setContent(null);
+			posts.add(new Element<>(post.getPid(), post, new byte[]{1,1}));
+			views.add(new Element<>(post.getPid(), String.valueOf(post.getViews()), new byte[]{1,1}));
+			likes.add(new Element<>(post.getPid(), String.valueOf(post.getLikes()), new byte[]{1,1}));
+			cmtCnt.add(new Element<>(post.getPid(), String.valueOf(post.getCmtCnt()), new byte[]{1,1}));
+		}
+
+		setPostListCache("PostContent:"+bid, contents, attributes);
+		setPostListCache("PostList:"+bid, posts, attributes);
+		setPostListCache("PostViews:"+bid, views, attributes);
+		setPostListCache("PostLikes:"+bid, likes, attributes);
+		setPostListCache("PostCmtCnt:"+bid, cmtCnt, attributes);
+
+		log.warn("[ARCUS] Set PostList : "+bid);
+	}
+
 	public void setPostListCache(String key, List<Element<Object>> elements, CollectionAttributes attributes) {
 		CollectionFuture<Map<Integer, CollectionOperationStatus>> future = null;
 		try {
@@ -193,27 +207,19 @@ public class PostArcus {
 		}
 	}
 
-	public void deletePostListCache(String key) {
-		for (int i=0; i<5; i++) {
-			Future<Boolean> future = arcusClient.delete(key);
-			try {
-				Boolean result = future.get(1000L, TimeUnit.MILLISECONDS);
-				if (result) break;
-			} catch (Exception e) {
-				future.cancel(true);
-				log.error(e.getMessage(), e);
-			}
-		}
-	}
-
 	public void createPostListCache(String key, ElementValueType valueType, CollectionAttributes attributes) {
-		for (int i=0; i<5; i++) {
+		while (true) {
 			CollectionFuture<Boolean> future = arcusClient.asyncBopCreate(key, valueType, attributes);
 			try {
 				Boolean result = future.get(700L, TimeUnit.MILLISECONDS);
 				if (result) break;
 			} catch (Exception e) {
 				future.cancel(true);
+				log.error(e.getMessage(), e);
+			}
+			try {
+				Thread.sleep(1000L);
+			} catch (InterruptedException e) {
 				log.error(e.getMessage(), e);
 			}
 		}
@@ -361,52 +367,62 @@ public class PostArcus {
 		try {
 			Map<Long, Element<Object>> result = postListFuture.get(1000L, TimeUnit.MILLISECONDS);
 			if (!postListFuture.getOperationStatus().isSuccess()) {
+				postCachingQueue.put(bid);
 				return postRepository.selectOne(pid);
 			}
 			post = (Post) result.get((long)pid).getValue();
 		} catch (Exception e) {
 			postListFuture.cancel(true);
 			log.error(e.getMessage(), e);
+			return postRepository.selectOne(pid);
 		}
 		try {
 			Map<Long, Element<Object>> result = contentFuture.get(1000L, TimeUnit.MILLISECONDS);
 			if (!contentFuture.getOperationStatus().isSuccess()) {
+				postCachingQueue.put(bid);
 				return postRepository.selectOne(pid);
 			}
 			post.setContent((String)result.get((long)pid).getValue());
 		} catch (Exception e) {
 			contentFuture.cancel(true);
 			log.error(e.getMessage(), e);
+			return postRepository.selectOne(pid);
 		}
 		try {
 			Map<Long, Element<Object>> result = viewsFuture.get(1000L, TimeUnit.MILLISECONDS);
 			if (!viewsFuture.getOperationStatus().isSuccess()) {
+				postCachingQueue.put(bid);
 				return postRepository.selectOne(pid);
 			}
 			post.setViews(Integer.parseInt((String)result.get((long)pid).getValue()));
 		} catch (Exception e) {
 			viewsFuture.cancel(true);
 			log.error(e.getMessage(), e);
+			return postRepository.selectOne(pid);
 		}
 		try {
 			Map<Long, Element<Object>> result = likesFuture.get(1000L, TimeUnit.MILLISECONDS);
 			if (!likesFuture.getOperationStatus().isSuccess()) {
+				postCachingQueue.put(bid);
 				return postRepository.selectOne(pid);
 			}
 			post.setLikes(Integer.parseInt((String)result.get((long)pid).getValue()));
 		} catch (Exception e) {
 			likesFuture.cancel(true);
 			log.error(e.getMessage(), e);
+			return postRepository.selectOne(pid);
 		}
 		try {
 			Map<Long, Element<Object>> result = commentCountFuture.get(1000L, TimeUnit.MILLISECONDS);
 			if (!commentCountFuture.getOperationStatus().isSuccess()) {
+				postCachingQueue.put(bid);
 				return postRepository.selectOne(pid);
 			}
 			post.setCmtCnt(Integer.parseInt((String)result.get((long)pid).getValue()));
 		} catch (Exception e) {
 			commentCountFuture.cancel(true);
 			log.error(e.getMessage(), e);
+			return postRepository.selectOne(pid);
 		}
 
 		return post;
