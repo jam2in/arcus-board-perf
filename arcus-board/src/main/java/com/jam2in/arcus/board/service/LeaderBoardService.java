@@ -146,17 +146,17 @@ public class LeaderBoardService {
 	public List<Post> bestLikesAll(int period) {
 		List<Post> bestLikes = null;
 		if (period==0) {
-			Future<Object> future = arcusClient.asyncGet("BestLikesToday:All");
+			Future<Object> future = null;
 			try {
-				bestLikes = (List<Post>) future.get(700L, TimeUnit.MILLISECONDS);
+				future = arcusClient.asyncGet("BestLikesToday:All");
+				bestLikes = (List<Post>)future.get(700L, TimeUnit.MILLISECONDS);
+				if (bestLikes == null) {
+					bestLikes = leaderBoardRepository.bestLikesAll(period);
+					arcusClient.set("BestLikesToday:All", 600, bestLikes);
+				}
 			} catch (Exception e) {
 				future.cancel(true);
 				log.error(e.getMessage(), e);
-			}
-
-			if (bestLikes == null) {
-				bestLikes = leaderBoardRepository.bestLikesAll(period);
-				arcusClient.set("BestLikesToday:All", 600, bestLikes);
 			}
 		}
 		else {
@@ -169,17 +169,17 @@ public class LeaderBoardService {
 	public List<Post> bestViewsAll(int period) {
 		List<Post> bestViews = null;
 		if (period==0) {
-			Future<Object> future = arcusClient.asyncGet("BestViewsToday:All");
+			Future<Object> future = null;
 			try {
-				bestViews = (List<Post>) future.get(700L, TimeUnit.MILLISECONDS);
+				future = arcusClient.asyncGet("BestViewsToday:All");
+				bestViews = (List<Post>)future.get(700L, TimeUnit.MILLISECONDS);
+				if (bestViews == null) {
+					bestViews = leaderBoardRepository.bestViewsAll(period);
+					arcusClient.set("BestViewsToday:All", 600, bestViews);
+				}
 			} catch (Exception e) {
 				future.cancel(true);
 				log.error(e.getMessage(), e);
-			}
-
-			if (bestViews == null) {
-				bestViews = leaderBoardRepository.bestViewsAll(period);
-				arcusClient.set("BestViewsToday:All", 600, bestViews);
 			}
 		}
 		else {
@@ -192,17 +192,17 @@ public class LeaderBoardService {
 	public List<Post> bestLikesBoard(int bid, int period) {
 		List<Post> bestLikes = null;
 		if (period==0) {
-			Future<Object> future = arcusClient.asyncGet("BestLikesToday:"+bid);
+			Future<Object> future = null;
 			try {
-				bestLikes = (List<Post>) future.get(1000L, TimeUnit.MILLISECONDS);
+				future = arcusClient.asyncGet("BestLikesToday:" + bid);
+				bestLikes = (List<Post>)future.get(1000L, TimeUnit.MILLISECONDS);
+				if (bestLikes == null) {
+					bestLikes = leaderBoardRepository.bestLikesBoard(bid, period);
+					arcusClient.set("BestLikesToday:" + bid, 600, bestLikes);
+				}
 			} catch (Exception e) {
 				future.cancel(true);
 				log.error(e.getMessage(), e);
-			}
-
-			if (bestLikes == null) {
-				bestLikes = leaderBoardRepository.bestLikesBoard(bid, period);
-				arcusClient.set("BestLikesToday:"+bid, 600, bestLikes);
 			}
 		}
 		return bestLikes;
@@ -211,17 +211,17 @@ public class LeaderBoardService {
 	public List<Post> bestViewsBoard(int bid, int period) {
 		List<Post> bestViews = null;
 		if (period==0) {
-			Future<Object> future = arcusClient.asyncGet("BestViewsToday:"+bid);
+			Future<Object> future = null;
 			try {
-				bestViews = (List<Post>) future.get(1000L, TimeUnit.MILLISECONDS);
+				future = arcusClient.asyncGet("BestViewsToday:" + bid);
+				bestViews = (List<Post>)future.get(1000L, TimeUnit.MILLISECONDS);
+				if (bestViews == null) {
+					bestViews = leaderBoardRepository.bestViewsBoard(bid, period);
+					arcusClient.set("BestViewsToday:" + bid, 600, bestViews);
+				}
 			} catch (Exception e) {
 				future.cancel(true);
 				log.error(e.getMessage(), e);
-			}
-
-			if (bestViews == null) {
-				bestViews = leaderBoardRepository.bestViewsBoard(bid, period);
-				arcusClient.set("BestViewsToday:"+bid, 600, bestViews);
 			}
 		}
 		return bestViews;

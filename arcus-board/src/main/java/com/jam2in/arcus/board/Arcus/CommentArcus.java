@@ -43,8 +43,9 @@ public class CommentArcus {
 		}
 		else {
 			int posTo = startList + pageSize - 1;
-			CollectionFuture<Map<Integer, Element<Object>>> future = arcusClient.asyncBopGetByPosition(key, BTreeOrder.ASC, startList, posTo);
+			CollectionFuture<Map<Integer, Element<Object>>> future = null;
 			try {
+				future = arcusClient.asyncBopGetByPosition(key, BTreeOrder.ASC, startList, posTo);
 				Map<Integer, Element<Object>> result = future.get(1000L, TimeUnit.MILLISECONDS);
 				CollectionResponse response = future.getOperationStatus().getResponse();
 				if (response.equals(CollectionResponse.NOT_FOUND)) {
@@ -69,7 +70,11 @@ public class CommentArcus {
 		CollectionAttributes attributes = new CollectionAttributes(3600, pageSize*5L, CollectionOverflowAction.error);
 
 		if (commentList.size() == 0) {
-			arcusClient.asyncBopCreate(key, ElementValueType.OTHERS, attributes);
+			try {
+				arcusClient.asyncBopCreate(key, ElementValueType.OTHERS, attributes);
+			} catch (Exception e) {
+				log.error(e.getMessage(), e);
+			}
 			return commentList;
 		}
 
@@ -81,11 +86,6 @@ public class CommentArcus {
 		CollectionFuture<Map<Integer, CollectionOperationStatus>> future = null;
 		try {
 			future = arcusClient.asyncBopPipedInsertBulk(key, elements, attributes);
-		} catch (IllegalStateException e) {
-			log.error(e.getMessage(), e);
-		}
-
-		try {
 			Map<Integer, CollectionOperationStatus> result = future.get(1000L, TimeUnit.MILLISECONDS);
 
 			if (!result.isEmpty()) {
@@ -106,8 +106,9 @@ public class CommentArcus {
 	public void insertComment(int cid) {
 		Comment comment = commentRepository.selectOne(cid);
 		String key = "CommentList:"+comment.getPid();
-		CollectionFuture<Boolean> future = arcusClient.asyncBopInsert(key, comment.getCid(), new byte[]{1,1}, comment, null);
+		CollectionFuture<Boolean> future = null;
 		try {
+			future = arcusClient.asyncBopInsert(key, comment.getCid(), new byte[]{1,1}, comment, null);
 			future.get(1000L, TimeUnit.MILLISECONDS);
 			CollectionResponse response = future.getOperationStatus().getResponse();
 			if (response.equals(CollectionResponse.OVERFLOWED)) return;
@@ -121,8 +122,9 @@ public class CommentArcus {
 		String key = "CommentList:"+comment.getPid();
 		Comment updateCmt = getComment(comment.getPid(), comment.getCid());
 		updateCmt.setContent(comment.getContent());
-		CollectionFuture<Boolean> future = arcusClient.asyncBopUpdate(key, comment.getCid(), null, updateCmt);
+		CollectionFuture<Boolean> future = null;
 		try {
+			future = arcusClient.asyncBopUpdate(key, comment.getCid(), null, updateCmt);
 			future.get(1000L, TimeUnit.MILLISECONDS);
 			CollectionResponse response = future.getOperationStatus().getResponse();
 			if (response.equals(CollectionResponse.NOT_FOUND_ELEMENT)) return;
@@ -134,9 +136,9 @@ public class CommentArcus {
 
 	public void deleteComment(int pid, int cid) {
 		String key = "CommentList:"+pid;
-		CollectionFuture<Boolean> future = arcusClient.asyncBopDelete(key, cid, ElementFlagFilter.DO_NOT_FILTER, false);
-		if (future == null) return;
+		CollectionFuture<Boolean> future = null;
 		try {
+			future = arcusClient.asyncBopDelete(key, cid, ElementFlagFilter.DO_NOT_FILTER, false);
 			future.get(1000L, TimeUnit.MILLISECONDS);
 			CollectionResponse response = future.getOperationStatus().getResponse();
 			if (response.equals(CollectionResponse.NOT_FOUND_ELEMENT)) return;
@@ -149,8 +151,9 @@ public class CommentArcus {
 	public Comment getComment(int pid, int cid) {
 		Comment comment = new Comment();
 		String key = "CommentList:"+pid;
-		CollectionFuture<Map<Long, Element<Object>>> future = arcusClient.asyncBopGet(key, cid, ElementFlagFilter.DO_NOT_FILTER, false, false);
+		CollectionFuture<Map<Long, Element<Object>>> future = null;
 		try {
+			future = arcusClient.asyncBopGet(key, cid, ElementFlagFilter.DO_NOT_FILTER, false, false);
 			Map<Long, Element<Object>> result = future.get(1000L, TimeUnit.MILLISECONDS);
 			CollectionResponse response = future.getOperationStatus().getResponse();
 			if (response.equals(CollectionResponse.NOT_FOUND_ELEMENT)) {

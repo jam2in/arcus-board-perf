@@ -52,26 +52,21 @@ public class PostArcus {
 		}
 
 		int postTo = startList + pageSize - 1;
-		// Get post list
-		CollectionFuture<Map<Integer, Element<Object>>> postListFuture
-			= arcusClient.asyncBopGetByPosition("PostList:"+bid, BTreeOrder.DESC, startList, postTo);
-		// Get views
-		CollectionFuture<Map<Integer, Element<Object>>> viewsFuture
-			= arcusClient.asyncBopGetByPosition("PostViews:"+bid, BTreeOrder.DESC, startList, postTo);
-		// Get likes
-		CollectionFuture<Map<Integer, Element<Object>>> likesFuture
-			= arcusClient.asyncBopGetByPosition("PostLikes:"+bid, BTreeOrder.DESC, startList, postTo);
-		// Get comment count
-		CollectionFuture<Map<Integer, Element<Object>>> commentCountFuture
-			= arcusClient.asyncBopGetByPosition("PostCmtCnt:"+bid, BTreeOrder.DESC, startList, postTo);
 
-		// Merge post list
+		CollectionFuture<Map<Integer, Element<Object>>> postListFuture = null;
+		CollectionFuture<Map<Integer, Element<Object>>> viewsFuture = null;
+		CollectionFuture<Map<Integer, Element<Object>>> likesFuture = null;
+		CollectionFuture<Map<Integer, Element<Object>>> commentCountFuture = null;
+
 		try {
+			// Get post list
+			postListFuture = arcusClient.asyncBopGetByPosition("PostList:"+bid, BTreeOrder.DESC, startList, postTo);
 			Map<Integer, Element<Object>> result = postListFuture.get(1000L, TimeUnit.MILLISECONDS);
 			if (!postListFuture.getOperationStatus().isSuccess()) {
 				postCachingQueue.put(bid);
 				return postRepository.selectAll(bid, startList, pageSize);
 			}
+			// Merge post list
 			for (Map.Entry<Integer, Element<Object>> each : result.entrySet()) {
 				postList.add((Post)each.getValue().getValue());
 			}
@@ -80,13 +75,16 @@ public class PostArcus {
 			log.error(e.getMessage(), e);
 			return postRepository.selectAll(bid, startList, pageSize);
 		}
-		// Merge views
+
 		try {
+			// Get views
+			viewsFuture = arcusClient.asyncBopGetByPosition("PostViews:"+bid, BTreeOrder.DESC, startList, postTo);
 			Map<Integer, Element<Object>> result = viewsFuture.get(1000L, TimeUnit.MILLISECONDS);
 			if (!viewsFuture.getOperationStatus().isSuccess()) {
 				postCachingQueue.put(bid);
 				return postRepository.selectAll(bid, startList, pageSize);
 			}
+			// Merge views
 			int i=0;
 			for (Map.Entry<Integer, Element<Object>> each : result.entrySet()) {
 				postList.get(i++).setViews(Integer.parseInt((String)each.getValue().getValue()));
@@ -96,13 +94,16 @@ public class PostArcus {
 			log.error(e.getMessage(), e);
 			return postRepository.selectAll(bid, startList, pageSize);
 		}
-		// Merge likes
+
 		try {
+			// Get likes
+			likesFuture = arcusClient.asyncBopGetByPosition("PostLikes:"+bid, BTreeOrder.DESC, startList, postTo);
 			Map<Integer, Element<Object>> result = likesFuture.get(1000L, TimeUnit.MILLISECONDS);
 			if (!likesFuture.getOperationStatus().isSuccess()) {
 				postCachingQueue.put(bid);
 				return postRepository.selectAll(bid, startList, pageSize);
 			}
+			// Merge likes
 			int i=0;
 			for (Map.Entry<Integer, Element<Object>> each : result.entrySet()) {
 				postList.get(i++).setLikes(Integer.parseInt((String)each.getValue().getValue()));
@@ -112,13 +113,16 @@ public class PostArcus {
 			log.error(e.getMessage(), e);
 			return postRepository.selectAll(bid, startList, pageSize);
 		}
-		// Merge comment count
+
 		try {
+			// Get comment count
+			commentCountFuture = arcusClient.asyncBopGetByPosition("PostCmtCnt:"+bid, BTreeOrder.DESC, startList, postTo);
 			Map<Integer, Element<Object>> result = commentCountFuture.get(1000L, TimeUnit.MILLISECONDS);
 			if (!commentCountFuture.getOperationStatus().isSuccess()) {
 				postCachingQueue.put(bid);
 				return postRepository.selectAll(bid, startList, pageSize);
 			}
+			// Merge comment count
 			int i=0;
 			for (Map.Entry<Integer, Element<Object>> each : result.entrySet()) {
 				postList.get(i++).setCmtCnt(Integer.parseInt((String)each.getValue().getValue()));
@@ -144,19 +148,26 @@ public class PostArcus {
 		List<Post> postList = postRepository.selectAllCache(bid, 0, PAGE_SIZE*5);
 		CollectionAttributes attributes = new CollectionAttributes(3600, PAGE_SIZE*5L, CollectionOverflowAction.smallest_trim);
 
-		arcusClient.delete("PostList:"+bid);
-		arcusClient.delete("PostContent:"+bid);
-		arcusClient.delete("PostViews:"+bid);
-		arcusClient.delete("PostLikes:"+bid);
-		arcusClient.delete("PostCmtCnt:"+bid);
+		try {
+			arcusClient.delete("PostList:" + bid);
+			arcusClient.delete("PostContent:" + bid);
+			arcusClient.delete("PostViews:" + bid);
+			arcusClient.delete("PostLikes:" + bid);
+			arcusClient.delete("PostCmtCnt:" + bid);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
 
 		if (postList.size() == 0) {
-			createPostListCache("PostList:"+bid, ElementValueType.OTHERS, attributes);
-			createPostListCache("PostContent:"+bid, ElementValueType.STRING, attributes);
-			createPostListCache("PostViews:"+bid, ElementValueType.STRING, attributes);
-			createPostListCache("PostLikes:"+bid, ElementValueType.STRING, attributes);
-			createPostListCache("PostCmtCnt:"+bid, ElementValueType.STRING, attributes);
-			return;
+			try {
+				arcusClient.asyncBopCreate("PostList:" + bid, ElementValueType.OTHERS, attributes);
+				arcusClient.asyncBopCreate("PostContent:" + bid, ElementValueType.STRING, attributes);
+				arcusClient.asyncBopCreate("PostViews:" + bid, ElementValueType.STRING, attributes);
+				arcusClient.asyncBopCreate("PostLikes:" + bid, ElementValueType.STRING, attributes);
+				arcusClient.asyncBopCreate("PostCmtCnt:" + bid, ElementValueType.STRING, attributes);
+			} catch (Exception e) {
+				log.error(e.getMessage(), e);
+			}
 		}
 
 		List<Element<Object>> contents = new ArrayList<>();
@@ -186,13 +197,6 @@ public class PostArcus {
 		CollectionFuture<Map<Integer, CollectionOperationStatus>> future = null;
 		try {
 			future = arcusClient.asyncBopPipedInsertBulk(key, elements, attributes);
-		} catch (IllegalStateException e) {
-			log.error(e.getMessage(), e);
-		}
-
-		if (future == null) return;
-
-		try {
 			Map<Integer, CollectionOperationStatus> result = future.get(1000L, TimeUnit.MILLISECONDS);
 			if (!result.isEmpty()) {
 				log.error("[ARCUS] Some items failed to insert.");
@@ -207,38 +211,21 @@ public class PostArcus {
 		}
 	}
 
-	public void createPostListCache(String key, ElementValueType valueType, CollectionAttributes attributes) {
-		while (true) {
-			CollectionFuture<Boolean> future = arcusClient.asyncBopCreate(key, valueType, attributes);
-			try {
-				Boolean result = future.get(700L, TimeUnit.MILLISECONDS);
-				if (result) break;
-			} catch (Exception e) {
-				future.cancel(true);
-				log.error(e.getMessage(), e);
-			}
-			try {
-				Thread.sleep(1000L);
-			} catch (InterruptedException e) {
-				log.error(e.getMessage(), e);
-			}
-		}
-	}
-
 	public void insertPost(int pid) {
 		Post post = postRepository.selectOne(pid);
 
 		insertPostCache("PostContent:"+post.getBid(), pid, post.getContent());
 		post.setContent(null);
 		insertPostCache("PostList:"+post.getBid(), pid, post);
-		insertPostCache("PostViews:"+post.getBid(), pid, String.valueOf(post.getViews()));
-		insertPostCache("PostLikes:"+post.getBid(), pid, String.valueOf(post.getLikes()));
-		insertPostCache("PostCmtCnt:"+post.getBid(), pid, String.valueOf(post.getCmtCnt()));
+		insertPostCache("PostViews:"+post.getBid(), pid, String.valueOf(0));
+		insertPostCache("PostLikes:"+post.getBid(), pid, String.valueOf(0));
+		insertPostCache("PostCmtCnt:"+post.getBid(), pid, String.valueOf(0));
 	}
 
 	public void insertPostCache(String key, long bkey, Object value) {
-		CollectionFuture<Boolean> future = arcusClient.asyncBopInsert(key, bkey, new byte[]{1,1}, value, null);
+		CollectionFuture<Boolean> future = null;
 		try {
+			future = arcusClient.asyncBopInsert(key, bkey, new byte[]{1,1}, value, null);
 			if(!future.get(1000L, TimeUnit.MILLISECONDS))
 				log.error("[ARCUS] Failed to insert : " + key + ":" + bkey);
 		} catch (Exception e) {
@@ -249,8 +236,9 @@ public class PostArcus {
 
 	public void increaseViews(int bid, int pid) {
 		String key = "PostViews:"+bid;
-		CollectionFuture<Long> future = arcusClient.asyncBopIncr(key, pid, 1);
+		CollectionFuture<Long> future = null;
 		try {
+			future = arcusClient.asyncBopIncr(key, pid, 1);
 			Long result = future.get(1000L, TimeUnit.MILLISECONDS);
 			if (result == null) {
 				log.error("[ARCUS] Failed to increase views : " + key + ":" + pid);
@@ -264,8 +252,9 @@ public class PostArcus {
 
 	public void increaseLikes(int bid, int pid) {
 		String key = "PostLikes:"+bid;
-		CollectionFuture<Long> future = arcusClient.asyncBopIncr(key, pid, 1);
+		CollectionFuture<Long> future = null;
 		try {
+			future = arcusClient.asyncBopIncr(key, pid, 1);
 			Long result = future.get(1000L, TimeUnit.MILLISECONDS);
 			if (result == null) {
 				log.error("[ARCUS] Failed to increase Likes : " + key + ":" + pid);
@@ -279,10 +268,11 @@ public class PostArcus {
 
 	public void increaseCmtCnt(int bid, int pid) {
 		String key = "PostCmtCnt:"+bid;
-		CollectionFuture<Long> future = arcusClient.asyncBopIncr(key, pid, 1);
+		CollectionFuture<Long> future = null;
 		try {
+			future = arcusClient.asyncBopIncr(key, pid, 1);
 			Long result = future.get(1000L, TimeUnit.MILLISECONDS);
-			if ( result == null ) {
+			if (result == null) {
 				log.error("[ARCUS] Failed to increase CmtCnt : " + key + ":" + pid);
 				log.error(String.valueOf(future.getOperationStatus().getResponse()));
 			}
@@ -294,10 +284,11 @@ public class PostArcus {
 
 	public void decreaseCmtCnt(int bid, int pid) {
 		String key = "PostCmtCnt:"+bid;
-		CollectionFuture<Long> future = arcusClient.asyncBopDecr(key, pid, 1);
+		CollectionFuture<Long> future = null;
 		try {
+			future = arcusClient.asyncBopDecr(key, pid, 1);
 			Long result = future.get(1000L, TimeUnit.MILLISECONDS);
-			if ( result == null ) {
+			if (result == null) {
 				log.error("[ARCUS] Failed to decrease CmtCnt : " + key + ":" + pid);
 				log.error(String.valueOf(future.getOperationStatus().getResponse()));
 			}
@@ -316,9 +307,9 @@ public class PostArcus {
 	}
 
 	public void deletePostCache(String key, long bkey) {
-		CollectionFuture<Boolean> future = arcusClient.asyncBopDelete(key, bkey, ElementFlagFilter.DO_NOT_FILTER, false);
-		if (future == null) return;
+		CollectionFuture<Boolean> future = null;
 		try {
+			future = arcusClient.asyncBopDelete(key, bkey, ElementFlagFilter.DO_NOT_FILTER, false);
 			future.get(1000L, TimeUnit.MILLISECONDS);
 			CollectionResponse response = future.getOperationStatus().getResponse();
 			if (response.equals(CollectionResponse.NOT_FOUND_ELEMENT)) return;
@@ -329,10 +320,10 @@ public class PostArcus {
 	}
 
 	public void updatePost(Post post) {
-		CollectionFuture<Boolean> ContentFuture = arcusClient.asyncBopUpdate("PostContent:"+post.getBid(), post.getPid(), null, post.getContent());
-		post.setContent(null);
-		CollectionFuture<Boolean> postListFuture = arcusClient.asyncBopUpdate("PostList:"+post.getBid(), post.getPid(), null, post);
+		CollectionFuture<Boolean> ContentFuture = null;
+		CollectionFuture<Boolean> postListFuture = null;
 		try {
+			ContentFuture = arcusClient.asyncBopUpdate("PostContent:"+post.getBid(), post.getPid(), null, post.getContent());
 			ContentFuture.get(1000L, TimeUnit.MILLISECONDS);
 			CollectionResponse response = ContentFuture.getOperationStatus().getResponse();
 			if (response.equals(CollectionResponse.NOT_FOUND_ELEMENT)) return;
@@ -341,6 +332,8 @@ public class PostArcus {
 			log.error(e.getMessage(), e);
 		}
 		try {
+			post.setContent(null);
+			postListFuture = arcusClient.asyncBopUpdate("PostList:"+post.getBid(), post.getPid(), null, post);
 			postListFuture.get(1000L, TimeUnit.MILLISECONDS);
 			CollectionResponse response = postListFuture.getOperationStatus().getResponse();
 			if (response.equals(CollectionResponse.NOT_FOUND_ELEMENT)) return;
@@ -353,18 +346,14 @@ public class PostArcus {
 	public Post getPost(int bid, int pid) {
 		Post post = new Post();
 
-		CollectionFuture<Map<Long, Element<Object>>> postListFuture
-			= arcusClient.asyncBopGet("PostList:"+bid, pid, ElementFlagFilter.DO_NOT_FILTER, false, false);
-		CollectionFuture<Map<Long, Element<Object>>> contentFuture
-			= arcusClient.asyncBopGet("PostContent:"+bid, pid, ElementFlagFilter.DO_NOT_FILTER, false, false);
-		CollectionFuture<Map<Long, Element<Object>>> viewsFuture
-			= arcusClient.asyncBopGet("PostViews:"+bid, pid, ElementFlagFilter.DO_NOT_FILTER, false, false);
-		CollectionFuture<Map<Long, Element<Object>>> likesFuture
-			= arcusClient.asyncBopGet("PostLikes:"+bid, pid, ElementFlagFilter.DO_NOT_FILTER, false, false);
-		CollectionFuture<Map<Long, Element<Object>>> commentCountFuture
-			= arcusClient.asyncBopGet("PostCmtCnt:"+bid, pid, ElementFlagFilter.DO_NOT_FILTER, false, false);
+		CollectionFuture<Map<Long, Element<Object>>> postListFuture = null;
+		CollectionFuture<Map<Long, Element<Object>>> contentFuture = null;
+		CollectionFuture<Map<Long, Element<Object>>> viewsFuture = null;
+		CollectionFuture<Map<Long, Element<Object>>> likesFuture = null;
+		CollectionFuture<Map<Long, Element<Object>>> commentCountFuture = null;
 
 		try {
+			postListFuture = arcusClient.asyncBopGet("PostList:"+bid, pid, ElementFlagFilter.DO_NOT_FILTER, false, false);
 			Map<Long, Element<Object>> result = postListFuture.get(1000L, TimeUnit.MILLISECONDS);
 			if (!postListFuture.getOperationStatus().isSuccess()) {
 				postCachingQueue.put(bid);
@@ -377,6 +366,7 @@ public class PostArcus {
 			return postRepository.selectOne(pid);
 		}
 		try {
+			contentFuture = arcusClient.asyncBopGet("PostContent:"+bid, pid, ElementFlagFilter.DO_NOT_FILTER, false, false);
 			Map<Long, Element<Object>> result = contentFuture.get(1000L, TimeUnit.MILLISECONDS);
 			if (!contentFuture.getOperationStatus().isSuccess()) {
 				postCachingQueue.put(bid);
@@ -389,6 +379,7 @@ public class PostArcus {
 			return postRepository.selectOne(pid);
 		}
 		try {
+			viewsFuture = arcusClient.asyncBopGet("PostViews:"+bid, pid, ElementFlagFilter.DO_NOT_FILTER, false, false);
 			Map<Long, Element<Object>> result = viewsFuture.get(1000L, TimeUnit.MILLISECONDS);
 			if (!viewsFuture.getOperationStatus().isSuccess()) {
 				postCachingQueue.put(bid);
@@ -401,6 +392,7 @@ public class PostArcus {
 			return postRepository.selectOne(pid);
 		}
 		try {
+			likesFuture = arcusClient.asyncBopGet("PostLikes:"+bid, pid, ElementFlagFilter.DO_NOT_FILTER, false, false);
 			Map<Long, Element<Object>> result = likesFuture.get(1000L, TimeUnit.MILLISECONDS);
 			if (!likesFuture.getOperationStatus().isSuccess()) {
 				postCachingQueue.put(bid);
@@ -413,6 +405,7 @@ public class PostArcus {
 			return postRepository.selectOne(pid);
 		}
 		try {
+			commentCountFuture = arcusClient.asyncBopGet("PostCmtCnt:"+bid, pid, ElementFlagFilter.DO_NOT_FILTER, false, false);
 			Map<Long, Element<Object>> result = commentCountFuture.get(1000L, TimeUnit.MILLISECONDS);
 			if (!commentCountFuture.getOperationStatus().isSuccess()) {
 				postCachingQueue.put(bid);
@@ -430,8 +423,9 @@ public class PostArcus {
 
 	public int getPostCount(int bid) {
 		int postCount = 0;
-		CollectionFuture<Map<Long, Element<Object>>> future = arcusClient.asyncBopGet("PostCount", bid, ElementFlagFilter.DO_NOT_FILTER, false, false);
+		CollectionFuture<Map<Long, Element<Object>>> future = null;
 		try {
+			future = arcusClient.asyncBopGet("PostCount", bid, ElementFlagFilter.DO_NOT_FILTER, false, false);
 			Map<Long, Element<Object>> result = future.get(700L, TimeUnit.MILLISECONDS);
 			if (!future.getOperationStatus().isSuccess()) {
 				return setPostCount(bid);
@@ -449,8 +443,9 @@ public class PostArcus {
 		int postCount = postRepository.countPost(bid);
 		CollectionAttributes attributes = new CollectionAttributes();
 		attributes.setExpireTime(3600);
-		CollectionFuture<Boolean> future = arcusClient.asyncBopUpsert("PostCount", bid, new byte[]{1,1}, String.valueOf(postCount), attributes);
+		CollectionFuture<Boolean> future = null;
 		try {
+			future = arcusClient.asyncBopUpsert("PostCount", bid, new byte[]{1,1}, String.valueOf(postCount), attributes);
 			if(!future.get(1000L, TimeUnit.MILLISECONDS))
 				log.error("[ARCUS] Failed to set PostCount:" + bid);
 		} catch (Exception e) {
@@ -461,8 +456,9 @@ public class PostArcus {
 	}
 
 	public void increasePostCount(int bid) {
-		CollectionFuture<Long> future = arcusClient.asyncBopIncr("PostCount", bid, 1);
+		CollectionFuture<Long> future = null;
 		try {
+			future = arcusClient.asyncBopIncr("PostCount", bid, 1);
 			Long result = future.get(700L, TimeUnit.MILLISECONDS);
 			if (result==null) {
 				log.error("[ARCUS] Failed to increase PostCount:" + bid);
@@ -475,8 +471,9 @@ public class PostArcus {
 	}
 
 	public void decreasePostCount(int bid) {
-		CollectionFuture<Long> future = arcusClient.asyncBopDecr("PostCount", bid, 1);
+		CollectionFuture<Long> future = null;
 		try {
+			future = arcusClient.asyncBopDecr("PostCount", bid, 1);
 			Long result = future.get(700L, TimeUnit.MILLISECONDS);
 			if (result==null) {
 				log.error("[ARCUS] Failed to decrease PostCount:" + bid);

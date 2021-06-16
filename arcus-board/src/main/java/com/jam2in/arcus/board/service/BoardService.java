@@ -35,17 +35,17 @@ public class BoardService {
 
     public List<Board> selectAllBoard() {
         List<Board> boardList = null;
-        Future<Object> future = arcusClient.asyncGet("BoardList");
+        Future<Object> future = null;
         try {
-            boardList = (List<Board>) future.get(700L, TimeUnit.MILLISECONDS);
+            future = arcusClient.asyncGet("BoardList");
+            boardList = (List<Board>)future.get(700L, TimeUnit.MILLISECONDS);
+            if (boardList == null) {
+                boardList = boardRepository.selectAll();
+                arcusClient.set("BoardList", 3600, boardList);
+            }
         } catch (Exception e) {
             future.cancel(true);
             log.error(e.getMessage(), e);
-        }
-
-        if (boardList == null) {
-            boardList = boardRepository.selectAll();
-            arcusClient.set("BoardList", 3600, boardList);
         }
 
         return boardList;
@@ -53,20 +53,19 @@ public class BoardService {
 
     public List<Board> bestBoard(int period) {
         List<Board> bestBoard = null;
-
         switch (period) {
             case 0 :
-                Future<Object> future = arcusClient.asyncGet("BestBoardRecent");
+                Future<Object> future = null;
                 try {
-                    bestBoard = (List<Board>) future.get(700L, TimeUnit.MILLISECONDS);
+                    future = arcusClient.asyncGet("BestBoardRecent");
+                    bestBoard = (List<Board>)future.get(700L, TimeUnit.MILLISECONDS);
+                    if (bestBoard == null) {
+                        bestBoard = boardRepository.bestBoardRecent();
+                        arcusClient.set("BestBoardRecent", 600, bestBoard);
+                    }
                 } catch (Exception e) {
                     future.cancel(true);
                     log.error(e.getMessage(), e);
-                }
-
-                if (bestBoard == null) {
-                    bestBoard = boardRepository.bestBoardRecent();
-                    arcusClient.set("BestBoardRecent", 600, bestBoard);
                 }
                 break;
             case 1 :
@@ -86,17 +85,17 @@ public class BoardService {
 
     public List<Category> boardCategoryAll() {
         List<Category> boardCategory = null;
-        Future<Object> future = arcusClient.asyncGet("Category:Board");
+        Future<Object> future = null;
         try {
-            boardCategory = (List<Category>) future.get(1000L, TimeUnit.MILLISECONDS);
+            future = arcusClient.asyncGet("Category:Board");
+            boardCategory = (List<Category>)future.get(1000L, TimeUnit.MILLISECONDS);
+            if (boardCategory == null) {
+                boardCategory = boardRepository.boardCategoryAll();
+                arcusClient.set("Category:Board", 3600, boardCategory);
+            }
         } catch (Exception e) {
             future.cancel(true);
             log.error(e.getMessage(), e);
-        }
-
-        if (boardCategory == null) {
-            boardCategory = boardRepository.boardCategoryAll();
-            arcusClient.set("Category:Board", 3600, boardCategory);
         }
 
         return boardCategory;

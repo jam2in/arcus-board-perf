@@ -96,19 +96,18 @@ public class PostService {
     @Transactional(readOnly = true)
     public List<Post> selectLatestNotice(int bid) {
         List<Post> latestNotice = null;
-
         if (bid==1) {
-            Future<Object> future = arcusClient.asyncGet("LatestNotice");
+            Future<Object> future = null;
             try {
+                future = arcusClient.asyncGet("LatestNotice");
                 latestNotice = (List<Post>) future.get(700L, TimeUnit.MILLISECONDS);
+                if (latestNotice == null) {
+                    latestNotice = postRepository.selectLatestNotice(bid);
+                    arcusClient.set("LatestNotice", 3600, latestNotice);
+                }
             } catch (Exception e) {
                 future.cancel(true);
                 log.error(e.getMessage(), e);
-            }
-
-            if (latestNotice == null) {
-                latestNotice = postRepository.selectLatestNotice(bid);
-                arcusClient.set("LatestNotice", 3600, latestNotice);
             }
         }
         else {
@@ -132,19 +131,19 @@ public class PostService {
         postArcus.increaseLikes(bid, pid);
     }
 
-    public List<Category> postCategoryAll(){
+    public List<Category> postCategoryAll() {
         List<Category> postCategory = null;
-        Future<Object> future = arcusClient.asyncGet("Category:Post");
+        Future<Object> future = null;
         try {
+            future = arcusClient.asyncGet("Category:Post");
             postCategory = (List<Category>) future.get(1000L, TimeUnit.MILLISECONDS);
+            if (postCategory == null) {
+                postCategory = postRepository.postCategoryAll();
+                arcusClient.set("Category:Post", 3600, postCategory);
+            }
         } catch (Exception e) {
             future.cancel(true);
             log.error(e.getMessage(), e);
-        }
-
-        if (postCategory == null) {
-            postCategory = postRepository.postCategoryAll();
-            arcusClient.set("Category:Post", 3600, postCategory);
         }
 
         return postCategory;
