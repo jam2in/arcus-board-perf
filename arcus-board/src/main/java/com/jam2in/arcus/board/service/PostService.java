@@ -1,6 +1,7 @@
 package com.jam2in.arcus.board.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -106,7 +107,7 @@ public class PostService {
                     arcusClient.set("LatestNotice", 3600, latestNotice);
                 }
             } catch (Exception e) {
-                future.cancel(true);
+                Optional.ofNullable(future).ifPresent(f -> f.cancel(true));
                 log.error(e.getMessage(), e);
             }
         }
@@ -142,7 +143,7 @@ public class PostService {
                 arcusClient.set("Category:Post", 3600, postCategory);
             }
         } catch (Exception e) {
-            future.cancel(true);
+            Optional.ofNullable(future).ifPresent(f -> f.cancel(true));
             log.error(e.getMessage(), e);
         }
 

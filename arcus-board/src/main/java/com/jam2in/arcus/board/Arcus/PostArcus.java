@@ -3,6 +3,7 @@ package com.jam2in.arcus.board.Arcus;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
@@ -71,7 +72,7 @@ public class PostArcus {
 				postList.add((Post)each.getValue().getValue());
 			}
 		} catch (Exception e) {
-			postListFuture.cancel(true);
+			Optional.ofNullable(postListFuture).ifPresent(f -> f.cancel(true));
 			log.error(e.getMessage(), e);
 			return postRepository.selectAll(bid, startList, pageSize);
 		}
@@ -90,7 +91,7 @@ public class PostArcus {
 				postList.get(i++).setViews(Integer.parseInt((String)each.getValue().getValue()));
 			}
 		} catch (Exception e) {
-			viewsFuture.cancel(true);
+			Optional.ofNullable(viewsFuture).ifPresent(f -> f.cancel(true));
 			log.error(e.getMessage(), e);
 			return postRepository.selectAll(bid, startList, pageSize);
 		}
@@ -109,7 +110,7 @@ public class PostArcus {
 				postList.get(i++).setLikes(Integer.parseInt((String)each.getValue().getValue()));
 			}
 		} catch (Exception e) {
-			likesFuture.cancel(true);
+			Optional.ofNullable(likesFuture).ifPresent(f -> f.cancel(true));
 			log.error(e.getMessage(), e);
 			return postRepository.selectAll(bid, startList, pageSize);
 		}
@@ -128,7 +129,7 @@ public class PostArcus {
 				postList.get(i++).setCmtCnt(Integer.parseInt((String)each.getValue().getValue()));
 			}
 		} catch (Exception e) {
-			commentCountFuture.cancel(true);
+			Optional.ofNullable(commentCountFuture).ifPresent(f -> f.cancel(true));
 			log.error(e.getMessage(), e);
 			return postRepository.selectAll(bid, startList, pageSize);
 		}
@@ -206,7 +207,7 @@ public class PostArcus {
 				}
 			}
 		} catch (Exception e) {
-			future.cancel(true);
+			Optional.ofNullable(future).ifPresent(f -> f.cancel(true));
 			log.error(e.getMessage(), e);
 		}
 	}
@@ -229,7 +230,7 @@ public class PostArcus {
 			if(!future.get(1000L, TimeUnit.MILLISECONDS))
 				log.error("[ARCUS] Failed to insert : " + key + ":" + bkey);
 		} catch (Exception e) {
-			future.cancel(true);
+			Optional.ofNullable(future).ifPresent(f -> f.cancel(true));
 			log.error(e.getMessage(), e);
 		}
 	}
@@ -245,7 +246,7 @@ public class PostArcus {
 				log.error(String.valueOf(future.getOperationStatus().getResponse()));
 			}
 		} catch (Exception e) {
-			future.cancel(true);
+			Optional.ofNullable(future).ifPresent(f -> f.cancel(true));
 			log.error(e.getMessage(), e);
 		}
 	}
@@ -261,7 +262,7 @@ public class PostArcus {
 				log.error(String.valueOf(future.getOperationStatus().getResponse()));
 			}
 		} catch (Exception e) {
-			future.cancel(true);
+			Optional.ofNullable(future).ifPresent(f -> f.cancel(true));
 			log.error(e.getMessage(), e);
 		}
 	}
@@ -277,7 +278,7 @@ public class PostArcus {
 				log.error(String.valueOf(future.getOperationStatus().getResponse()));
 			}
 		} catch (Exception e) {
-			future.cancel(true);
+			Optional.ofNullable(future).ifPresent(f -> f.cancel(true));
 			log.error(e.getMessage(), e);
 		}
 	}
@@ -293,7 +294,7 @@ public class PostArcus {
 				log.error(String.valueOf(future.getOperationStatus().getResponse()));
 			}
 		} catch (Exception e) {
-			future.cancel(true);
+			Optional.ofNullable(future).ifPresent(f -> f.cancel(true));
 			log.error(e.getMessage(), e);
 		}
 	}
@@ -314,7 +315,7 @@ public class PostArcus {
 			CollectionResponse response = future.getOperationStatus().getResponse();
 			if (response.equals(CollectionResponse.NOT_FOUND_ELEMENT)) return;
 		} catch (Exception e) {
-			future.cancel(true);
+			Optional.ofNullable(future).ifPresent(f -> f.cancel(true));
 			log.error(e.getMessage(), e);
 		}
 	}
@@ -328,7 +329,7 @@ public class PostArcus {
 			CollectionResponse response = ContentFuture.getOperationStatus().getResponse();
 			if (response.equals(CollectionResponse.NOT_FOUND_ELEMENT)) return;
 		} catch (Exception e) {
-			ContentFuture.cancel(true);
+			Optional.ofNullable(ContentFuture).ifPresent(f -> f.cancel(true));
 			log.error(e.getMessage(), e);
 		}
 		try {
@@ -338,7 +339,7 @@ public class PostArcus {
 			CollectionResponse response = postListFuture.getOperationStatus().getResponse();
 			if (response.equals(CollectionResponse.NOT_FOUND_ELEMENT)) return;
 		} catch (Exception e) {
-			postListFuture.cancel(true);
+			Optional.ofNullable(postListFuture).ifPresent(f -> f.cancel(true));
 			log.error(e.getMessage(), e);
 		}
 	}
@@ -361,7 +362,7 @@ public class PostArcus {
 			}
 			post = (Post) result.get((long)pid).getValue();
 		} catch (Exception e) {
-			postListFuture.cancel(true);
+			Optional.ofNullable(postListFuture).ifPresent(f -> f.cancel(true));
 			log.error(e.getMessage(), e);
 			return postRepository.selectOne(pid);
 		}
@@ -374,7 +375,7 @@ public class PostArcus {
 			}
 			post.setContent((String)result.get((long)pid).getValue());
 		} catch (Exception e) {
-			contentFuture.cancel(true);
+			Optional.ofNullable(contentFuture).ifPresent(f -> f.cancel(true));
 			log.error(e.getMessage(), e);
 			return postRepository.selectOne(pid);
 		}
@@ -387,7 +388,7 @@ public class PostArcus {
 			}
 			post.setViews(Integer.parseInt((String)result.get((long)pid).getValue()));
 		} catch (Exception e) {
-			viewsFuture.cancel(true);
+			Optional.ofNullable(viewsFuture).ifPresent(f -> f.cancel(true));
 			log.error(e.getMessage(), e);
 			return postRepository.selectOne(pid);
 		}
@@ -400,7 +401,7 @@ public class PostArcus {
 			}
 			post.setLikes(Integer.parseInt((String)result.get((long)pid).getValue()));
 		} catch (Exception e) {
-			likesFuture.cancel(true);
+			Optional.ofNullable(likesFuture).ifPresent(f -> f.cancel(true));
 			log.error(e.getMessage(), e);
 			return postRepository.selectOne(pid);
 		}
@@ -413,7 +414,7 @@ public class PostArcus {
 			}
 			post.setCmtCnt(Integer.parseInt((String)result.get((long)pid).getValue()));
 		} catch (Exception e) {
-			commentCountFuture.cancel(true);
+			Optional.ofNullable(commentCountFuture).ifPresent(f -> f.cancel(true));
 			log.error(e.getMessage(), e);
 			return postRepository.selectOne(pid);
 		}
@@ -432,7 +433,7 @@ public class PostArcus {
 			}
 			postCount = Integer.parseInt((String)result.get((long)bid).getValue());
 		} catch (Exception e) {
-			future.cancel(true);
+			Optional.ofNullable(future).ifPresent(f -> f.cancel(true));
 			log.error(e.getMessage(), e);
 		}
 
@@ -449,7 +450,7 @@ public class PostArcus {
 			if(!future.get(1000L, TimeUnit.MILLISECONDS))
 				log.error("[ARCUS] Failed to set PostCount:" + bid);
 		} catch (Exception e) {
-			future.cancel(true);
+			Optional.ofNullable(future).ifPresent(f -> f.cancel(true));
 			log.error(e.getMessage(), e);
 		}
 		return postCount;
@@ -465,7 +466,7 @@ public class PostArcus {
 				log.error(String.valueOf(future.getOperationStatus().getResponse()));
 			}
 		} catch (Exception e) {
-			future.cancel(true);
+			Optional.ofNullable(future).ifPresent(f -> f.cancel(true));
 			log.error(e.getMessage(), e);
 		}
 	}
@@ -480,7 +481,7 @@ public class PostArcus {
 				log.error(String.valueOf(future.getOperationStatus().getResponse()));
 			}
 		} catch (Exception e) {
-			future.cancel(true);
+			Optional.ofNullable(future).ifPresent(f -> f.cancel(true));
 			log.error(e.getMessage(), e);
 		}
 	}

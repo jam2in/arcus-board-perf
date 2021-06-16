@@ -2,6 +2,7 @@ package com.jam2in.arcus.board.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -155,7 +156,7 @@ public class LeaderBoardService {
 					arcusClient.set("BestLikesToday:All", 600, bestLikes);
 				}
 			} catch (Exception e) {
-				future.cancel(true);
+				Optional.ofNullable(future).ifPresent(f -> f.cancel(true));
 				log.error(e.getMessage(), e);
 			}
 		}
@@ -178,7 +179,7 @@ public class LeaderBoardService {
 					arcusClient.set("BestViewsToday:All", 600, bestViews);
 				}
 			} catch (Exception e) {
-				future.cancel(true);
+				Optional.ofNullable(future).ifPresent(f -> f.cancel(true));
 				log.error(e.getMessage(), e);
 			}
 		}
@@ -201,7 +202,7 @@ public class LeaderBoardService {
 					arcusClient.set("BestLikesToday:" + bid, 600, bestLikes);
 				}
 			} catch (Exception e) {
-				future.cancel(true);
+				Optional.ofNullable(future).ifPresent(f -> f.cancel(true));
 				log.error(e.getMessage(), e);
 			}
 		}
@@ -220,7 +221,7 @@ public class LeaderBoardService {
 					arcusClient.set("BestViewsToday:" + bid, 600, bestViews);
 				}
 			} catch (Exception e) {
-				future.cancel(true);
+				Optional.ofNullable(future).ifPresent(f -> f.cancel(true));
 				log.error(e.getMessage(), e);
 			}
 		}

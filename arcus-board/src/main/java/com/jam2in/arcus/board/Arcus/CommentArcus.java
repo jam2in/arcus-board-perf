@@ -3,6 +3,7 @@ package com.jam2in.arcus.board.Arcus;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +56,7 @@ public class CommentArcus {
 					commentList.add((Comment)each.getValue().getValue());
 				}
 			} catch (Exception e) {
-				future.cancel(true);
+				Optional.ofNullable(future).ifPresent(f -> f.cancel(true));
 				log.error(e.getMessage(), e);
 			}
 		}
@@ -96,7 +97,7 @@ public class CommentArcus {
 				}
 			}
 		} catch (Exception e) {
-			future.cancel(true);
+			Optional.ofNullable(future).ifPresent(f -> f.cancel(true));
 			log.error(e.getMessage(), e);
 		}
 
@@ -113,7 +114,7 @@ public class CommentArcus {
 			CollectionResponse response = future.getOperationStatus().getResponse();
 			if (response.equals(CollectionResponse.OVERFLOWED)) return;
 		} catch (Exception e) {
-			future.cancel(true);
+			Optional.ofNullable(future).ifPresent(f -> f.cancel(true));
 			log.error(e.getMessage(), e);
 		}
 	}
@@ -129,7 +130,7 @@ public class CommentArcus {
 			CollectionResponse response = future.getOperationStatus().getResponse();
 			if (response.equals(CollectionResponse.NOT_FOUND_ELEMENT)) return;
 		} catch (Exception e) {
-			future.cancel(true);
+			Optional.ofNullable(future).ifPresent(f -> f.cancel(true));
 			log.error(e.getMessage(), e);
 		}
 	}
@@ -143,7 +144,7 @@ public class CommentArcus {
 			CollectionResponse response = future.getOperationStatus().getResponse();
 			if (response.equals(CollectionResponse.NOT_FOUND_ELEMENT)) return;
 		} catch (Exception e) {
-			future.cancel(true);
+			Optional.ofNullable(future).ifPresent(f -> f.cancel(true));
 			log.error(e.getMessage(), e);
 		}
 	}
@@ -161,7 +162,7 @@ public class CommentArcus {
 			}
 			comment = (Comment) result.get((long)cid).getValue();
 		} catch (Exception e) {
-			future.cancel(true);
+			Optional.ofNullable(future).ifPresent(f -> f.cancel(true));
 			log.error(e.getMessage(), e);
 		}
 		return comment;

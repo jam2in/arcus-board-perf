@@ -1,6 +1,7 @@
 package com.jam2in.arcus.board.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -44,7 +45,7 @@ public class BoardService {
                 arcusClient.set("BoardList", 3600, boardList);
             }
         } catch (Exception e) {
-            future.cancel(true);
+            Optional.ofNullable(future).ifPresent(f -> f.cancel(true));
             log.error(e.getMessage(), e);
         }
 
@@ -64,7 +65,7 @@ public class BoardService {
                         arcusClient.set("BestBoardRecent", 600, bestBoard);
                     }
                 } catch (Exception e) {
-                    future.cancel(true);
+                    Optional.ofNullable(future).ifPresent(f -> f.cancel(true));
                     log.error(e.getMessage(), e);
                 }
                 break;
@@ -94,7 +95,7 @@ public class BoardService {
                 arcusClient.set("Category:Board", 3600, boardCategory);
             }
         } catch (Exception e) {
-            future.cancel(true);
+            Optional.ofNullable(future).ifPresent(f -> f.cancel(true));
             log.error(e.getMessage(), e);
         }
 
