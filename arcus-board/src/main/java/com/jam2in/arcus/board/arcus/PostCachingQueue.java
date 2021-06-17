@@ -1,4 +1,4 @@
-package com.jam2in.arcus.board.Arcus;
+package com.jam2in.arcus.board.arcus;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;

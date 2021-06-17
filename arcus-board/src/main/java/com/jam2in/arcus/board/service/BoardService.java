@@ -6,15 +6,12 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import net.spy.memcached.ArcusClientPool;
 
-import com.jam2in.arcus.board.configuration.ArcusConfiguration;
 import com.jam2in.arcus.board.model.Board;
 import com.jam2in.arcus.board.model.Category;
 import com.jam2in.arcus.board.repository.BoardRepository;
@@ -25,9 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 public class BoardService {
     @Autowired
     private BoardRepository boardRepository;
-
-    ApplicationContext context = new AnnotationConfigApplicationContext(ArcusConfiguration.class);
-    ArcusClientPool arcusClient = context.getBean("arcusClient", ArcusClientPool.class);
+    @Autowired
+    private ArcusClientPool arcusClient;
 
     @Transactional(readOnly = true)
     public Board selectOneBoard(int id) {

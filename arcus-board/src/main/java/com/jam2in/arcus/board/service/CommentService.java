@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.jam2in.arcus.board.Arcus.CommentArcus;
-import com.jam2in.arcus.board.Arcus.PostArcus;
+import com.jam2in.arcus.board.arcus.CommentArcus;
+import com.jam2in.arcus.board.arcus.PostArcus;
 import com.jam2in.arcus.board.model.Comment;
 import com.jam2in.arcus.board.repository.BoardRepository;
 import com.jam2in.arcus.board.repository.CommentRepository;

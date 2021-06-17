@@ -1,4 +1,4 @@
-package com.jam2in.arcus.board.Arcus;
+package com.jam2in.arcus.board.arcus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,8 +9,6 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Component;
 
 import net.spy.memcached.ArcusClientPool;
@@ -24,7 +22,6 @@ import net.spy.memcached.collection.ElementValueType;
 import net.spy.memcached.internal.CollectionFuture;
 import net.spy.memcached.ops.CollectionOperationStatus;
 
-import com.jam2in.arcus.board.configuration.ArcusConfiguration;
 import com.jam2in.arcus.board.model.Pagination;
 import com.jam2in.arcus.board.model.Post;
 import com.jam2in.arcus.board.repository.PostRepository;
@@ -33,15 +30,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class PostArcus {
+	private static final int PAGE_SIZE = 20;
+
 	@Autowired
 	private PostRepository postRepository;
 	@Autowired
 	private PostCachingQueue postCachingQueue;
-
-	private static final int PAGE_SIZE = 20;
-
-	ApplicationContext context = new AnnotationConfigApplicationContext(ArcusConfiguration.class);
-	ArcusClientPool arcusClient = context.getBean("arcusClient", ArcusClientPool.class);
+	@Autowired
+	private ArcusClientPool arcusClient;
 
 	public List<Post> getPostList(int bid, Pagination pagination) {
 		List<Post> postList = new ArrayList<>();

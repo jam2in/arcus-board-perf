@@ -1,4 +1,4 @@
-package com.jam2in.arcus.board.Arcus;
+package com.jam2in.arcus.board.arcus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,8 +7,6 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Component;
 
 import net.spy.memcached.ArcusClientPool;
@@ -22,7 +20,6 @@ import net.spy.memcached.collection.ElementValueType;
 import net.spy.memcached.internal.CollectionFuture;
 import net.spy.memcached.ops.CollectionOperationStatus;
 
-import com.jam2in.arcus.board.configuration.ArcusConfiguration;
 import com.jam2in.arcus.board.model.Comment;
 import com.jam2in.arcus.board.repository.CommentRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -32,9 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 public class CommentArcus {
 	@Autowired
 	CommentRepository commentRepository;
-
-	ApplicationContext context = new AnnotationConfigApplicationContext(ArcusConfiguration.class);
-	ArcusClientPool arcusClient = context.getBean("arcusClient", ArcusClientPool.class);
+	@Autowired
+	ArcusClientPool arcusClient;
 
 	public List<Comment> getCommentList(int pid, int startList, int pageSize) {
 		List<Comment> commentList = new ArrayList<>();
