@@ -16,7 +16,6 @@ import com.jam2in.arcus.board.arcus.PostArcus;
 import com.jam2in.arcus.board.model.Category;
 import com.jam2in.arcus.board.model.Pagination;
 import com.jam2in.arcus.board.model.Post;
-import com.jam2in.arcus.board.repository.BoardRepository;
 import com.jam2in.arcus.board.repository.PostRepository;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,7 +25,7 @@ public class PostService {
     @Autowired
     private PostRepository postRepository;
     @Autowired
-    private BoardRepository boardRepository;
+    private BoardRequestArcus boardRequestArcus;
     @Autowired
     private PostArcus postArcus;
     @Autowired
@@ -35,8 +34,8 @@ public class PostService {
     @Transactional
     public void insertPost(Post post) {
         int bid = post.getBid();
-        boardRepository.increaseReqRecent(bid);
-        boardRepository.increaseReqToday(bid);
+        boardRequestArcus.increaseRequestRecent(bid);
+        boardRequestArcus.increaseRequestToday(bid);
         postRepository.insert(post);
         postArcus.insertPost(post.getPid());
         postArcus.increasePostCount(bid);
@@ -45,8 +44,8 @@ public class PostService {
     @Transactional
     public void updatePost(Post post) {
         int bid = post.getBid();
-        boardRepository.increaseReqRecent(bid);
-        boardRepository.increaseReqToday(bid);
+        boardRequestArcus.increaseRequestRecent(bid);
+        boardRequestArcus.increaseRequestToday(bid);
         postRepository.update(post);
         postArcus.updatePost(postRepository.selectOne(post.getPid()));
     }
@@ -54,8 +53,8 @@ public class PostService {
     @Transactional
     public int deletePost(int pid) {
         int bid = postRepository.selectOne(pid).getBid();
-        boardRepository.increaseReqRecent(bid);
-        boardRepository.increaseReqToday(bid);
+        boardRequestArcus.increaseRequestRecent(bid);
+        boardRequestArcus.increaseRequestToday(bid);
         postRepository.delete(pid);
         postArcus.deletePost(bid, pid);
         postArcus.decreasePostCount(bid);
@@ -66,8 +65,8 @@ public class PostService {
     @Transactional
     public Post detailPost(int bid, int pid) {
         Post post = postArcus.getPost(bid, pid);
-        boardRepository.increaseReqRecent(post.getBid());
-        boardRepository.increaseReqToday(post.getBid());
+        boardRequestArcus.increaseRequestRecent(bid);
+        boardRequestArcus.increaseRequestToday(bid);
         postRepository.increaseViews(pid);
         postArcus.increaseViews(bid, pid);
         return post;
@@ -79,15 +78,15 @@ public class PostService {
 
     @Transactional
     public List<Post> postList(int bid, Pagination pagination) {
-        boardRepository.increaseReqRecent(bid);
-        boardRepository.increaseReqToday(bid);
+        boardRequestArcus.increaseRequestRecent(bid);
+        boardRequestArcus.increaseRequestToday(bid);
         return postArcus.getPostList(bid, pagination);
     }
 
     @Transactional
     public List<Post> postCategoryList(int bid, int category, Pagination pagination) {
-        boardRepository.increaseReqRecent(bid);
-        boardRepository.increaseReqToday(bid);
+        boardRequestArcus.increaseRequestRecent(bid);
+        boardRequestArcus.increaseRequestToday(bid);
         return postRepository.selectCategory(bid, category, pagination.getStartList()-1, pagination.getPageSize());
     }
 
